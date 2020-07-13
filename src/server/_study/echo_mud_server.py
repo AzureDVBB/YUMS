@@ -19,6 +19,45 @@ async def handle_connection(reader, writer):
     # a reference here
     addr = writer.get_extra_info('peername')
     print(f"!!!! New connection recived from: {addr}")
+
+    ############# TELNET negotiations testing
+    print(f"??<< Sending 'are_you_there' command...")
+    # NOTE: this sends a TELNET request to the connected client to check if they are still there
+    # the first value '255' is 'interpret-as-command (IAC)' must precede all commands sent to
+    # clients, next is the '253' or 'do-preform (DO)' command, indicating the client
+    # should do this command and finally
+    # '246' or 'are-you-there (AYT)' command requests a response from the client
+    writer.write(bytes([255, 253, 246]))
+    await writer.drain()
+    ret = await reader.read(100)
+    # Will return a response (with client tintin++ and mudlet)
+    # b'\xff\xfc\xf6' decoded as [255, 252, 246]
+    # that is, interpret-as-command, Won't perform , are-you-there, (IAC, WON'T, AYT)
+    # this is basically just a ping to the client to check if they are still there
+    print(f"??>> Recieved response {ret}")
+
+    print("??<< Sending request for terminal type")
+    # Sends a check to see if the client will perform the transaction, once again see
+    # https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html where this example
+    # has been taken from
+    writer.write(bytes([255,253,24])) # IAC DO (terminal type)
+    await writer.drain()
+    ret = await reader.read(100)
+    print(f"??>> Recieved response {ret}")
+    if ret == b'\xff\xfb\x18': # client will do the negotiation
+        print("  ?< Interpreted as WILL DO, sending command to identify terminal type..")
+        writer.write(bytes([255, 250, 24, 1, 255, 240])) # IAC SB (termintal-type) (1) IAC SE
+        await writer.drain()
+        ret = await reader.read(100)
+        # the response should be: 255 250 24 0 <list of characters here> 255 240
+        # that is: IAC SB (terminal-type) (0) <list of characters here> IAC SE
+        print(f"  ?> Recieved response {ret}")
+        ttype = str(ret).split('\\')[-3][3:] # takes the list of characters returned (terminal type)
+        print(f"  ?~ Terminal identity confirmed as {ttype}")
+    else: # client will not do, or gave an unexpected response
+        print("  ~~ Interpreted as WON'T DO, terminal type will remain a mystery.")
+
+    ############## echo server loop
     while True:
         # NOTE: readline() will stop reading at b'\n'
         # This means that 'message\nbroken' sent by client is interpreted as two seperate commands
@@ -34,42 +73,6 @@ async def handle_connection(reader, writer):
         writer.write(data)
         await writer.drain()
         print(f'++++ Echoed successfully. Awaiting new message..')
-
-        print(f"??<< Sending 'are_you_there' command...")
-        # NOTE: this sends a TELNET request to the connected client to check if they are still there
-        # the first value '255' is 'interpret-as-command (IAC)' must precede all commands sent to
-        # clients, next is the '253' or 'do-preform (DO)' command, indicating the client
-        # should do this command and finally
-        # '246' or 'are-you-there (AYT)' command requests a response from the client
-        writer.write(bytes([255, 253, 246]))
-        await writer.drain()
-        ret = await reader.read(100)
-        # Will return a response (with client tintin++ and mudlet)
-        # b'\xff\xfc\xf6' decoded as [255, 252, 246]
-        # that is, interpret-as-command, Won't perform , are-you-there, (IAC, WON'T, AYT)
-        # this is basically just a ping to the client to check if they are still there
-        print(f"??>> Recieved response {ret}")
-
-        print("??<< Sending request for terminal type")
-        # Sends a check to see if the client will perform the transaction, once again see
-        # https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html where this example
-        # has been taken from
-        writer.write(bytes([255,253,24])) # IAC DO (terminal type)
-        await writer.drain()
-        ret = await reader.read(100)
-        print(f"??>> Recieved response {ret}")
-        if ret == b'\xff\xfb\x18': # client will do the negotiation
-            print("  ?< Interpreted as WILL DO, sending command to identify terminal type..")
-            writer.write(bytes([255, 250, 24, 1, 255, 240])) # IAC SB (termintal-type) (1) IAC SE
-            await writer.drain()
-            ret = await reader.read(100)
-            # the response should be: 255 250 24 0 <list of characters here> 255 240
-            # that is: IAC SB (terminal-type) (0) <list of characters here> IAC SE
-            print(f"  ?> Recieved response {ret}")
-            ttype = str(ret).split('\\')[-3][3:] # takes the list of characters returned (terminal type)
-            print(f"  ?~ Terminal identity confirmed as {ttype}")
-        else: # client will not do, or gave an unexpected response
-            print("  ~~ Interpreted as WON'T DO, terminal type will remain a mystery.")
 
     print(f"XXXX Closing connection from {addr}")
     writer.close()
