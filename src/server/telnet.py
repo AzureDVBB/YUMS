@@ -14,154 +14,110 @@ It is all done with class methods as properties, so we get support of docstrings
 an excellent way to look up what they do from other modules with your IDE of choice.
 """
 
-class TelnetCommands:
-    """
-    Programmed in TELNET commands with the codes required to send (request) and their
-    expected responses (response)
-    """
-
-    class are_you_there:
-        """Request and Response codes for the check to see"""
-        @property
-        def request():
-            """Command to request to check if the client is still alive."""
-            return CommandCodes.IAC + CommandCodes.DO + CommandCodes.AYT
-
-        @property
-        def response():
-            """Response to the check to see if the client is alive."""
-            return CommandCodes.IAC + CommandCodes.WONT + CommandCodes.AYT
-
-
-class CommandCodes:
+class Code:
     """
     Telnet command codes from https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
     along side the explanations found as docstrings for easier interpretation.
     """
-    # template for all command codes
-    #
-    # @property
-    # def COMMAND():
-    #     """
-    #     Example docstring.
-    #     """
-    #     return bytes([0])
 
-    @property
-    def SE():
-        """
-        End of subnegotiation parameters.
-        """
-        return bytes([240])
+    SE = 240
+    """
+    End of subnegotiation parameters.
+    """
 
-    @property
-    def NOP():
-        """
-        No operation.
-        """
-        return bytes([241])
+    NOP = 241
+    """
+    No operation.
+    """
 
-    @property
-    def DM():
-        """
-        Data mark. Indicates the position of a Sync event within the data stream.
-        This should always be accompanied by a TCP urgent notification.
-        """
-        return bytes([242])
+    DM = 242
+    """
+    Data mark. Indicates the position of a Sync event within the data stream.
+    This should always be accompanied by a TCP urgent notification.
+    """
 
-    @property
-    def BRK():
-        """
-        Break. Indicates the "break" or "attention" key was hit.
-        """
-        return bytes([243])
+    BRK = 243
+    """
+    Break. Indicates the "break" or "attention" key was hit.
+    """
 
-    @property
-    def IP():
-        """
-        Suspend, interrupt or abort the process to which the NVT is connected.
-        """
-        return bytes([244])
+    IP = 244
+    """
+    Suspend, interrupt or abort the process to which the NVT is connected.
+    """
 
-    @property
-    def AO():
-        """
-        Abort output. Allows the current process to run to completion but do not send
-        its output to the user.
-        """
-        return bytes([245])
+    AO = 245
+    """
+    Abort output. Allows the current process to run to completion but do not send
+    its output to the user.
+    """
 
-    @property
-    def AYT():
-        """
-        Are you there? Send back to the NVT some visible evidence that the AYT was recieved.
-        """
-        return bytes([246])
+    AYT = 246
+    """
+    Are you there? Send back to the NVT some visible evidence that the AYT was recieved.
+    """
 
-    @property
-    def EC():
-        """
-        Erase character. The reciever should delete the last preceding character from
-        the data stream.
-        """
-        return bytes([247])
+    EC = 247
+    """
+    Erase character. The reciever should delete the last preceding character from
+    the data stream.
+    """
 
-    @property
-    def EL():
-        """
-        Erase line. Delete characters from the data stream back to but not including
-        the previous CRLF (carriage return, line feed).
-        """
-        return bytes([248])
+    EL = 248
+    """
+    Erase line. Delete characters from the data stream back to but not including
+    the previous CRLF (carriage return, line feed).
+    """
 
-    @property
-    def GA():
-        """
-        Go ahead. Used under certain circumstances, to tell the other end that it can transmit.
-        """
-        return bytes([249])
+    GA = 249
+    """
+    Go ahead. Used under certain circumstances, to tell the other end that it can transmit.
+    """
 
-    @property
-    def SB():
-        """
-        Subnegotiation of the indicated option follows.
-        """
-        return bytes([250])
+    SB = 250
+    """
+    Subnegotiation of the indicated option follows.
+    """
 
-    @property
-    def WILL():
-        """
-        Indicates the desire to begin performing, or confirmation that you are
-  	  	now performing, the indicated option.
-        """
-        return bytes([251])
+    WILL = 251
+    """
+    Indicates the desire to begin performing, or confirmation that you are
+    performing, the indicated option.
+    """
 
-    @property
-    def WONT():
-        """
-        Indicates the refusal to perform, or continue performing, the indicated option.
-        """
-        return bytes([252])
+    WONT = 252
+    """
+    Indicates the refusal to perform, or continue performing, the indicated option.
+    """
 
-    @property
-    def DO():
-        """
-        Indicates the request that the other party perforn, or confirmation that you are
-        expecting the other party to perform, the indicated option.
-        """
-        return bytes([253])
+    DO = 253
+    """
+    Indicates the request that the other party perforn, or confirmation that you are
+    expecting the other party to perform, the indicated option.
+    """
 
-    @property
-    def DONT():
-        """
-        Indicates the demand that the other party stop performing, or confirmation that you
-  	  	are no longer expecting the other party to perform, the indicated option.
-        """
-        return bytes([254])
+    DONT = 254
+    """
+    Indicates the demand that the other party stop performing, or confirmation that you
+    longer expecting the other party to perform, the indicated option.
+    """
 
-    @property
-    def IAC():
-        """
-        Interpret as command.
-        """
-        return bytes([255])
+    IAC = 255
+    """
+    Interpret as command.
+    """
+
+class Command:
+    """
+    Programmed in TELNET commands with the codes required to send (request) and their
+    expected responses (response).
+    """
+
+    class are_you_there:
+        """Request and Response codes for the check to see if the client is still connected."""
+
+        request = bytes([Code.IAC, Code.DO, Code.AYT])
+        """Command to request to check if the client is still alive."""
+
+        response = bytes([Code.IAC, Code.WONT, Code.AYT])
+        """Response to the check to see if the client is alive."""
