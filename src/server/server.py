@@ -15,8 +15,8 @@ active_connections = []
 
 async def handle_connection(reader, writer):
     conn = connection.Connection(reader, writer)
-    read_task = asyncio.ensure_future(connection.read_input(conn, 60))
-    write_task = asyncio.ensure_future(connection.write_output(conn, 10))
+    asyncio.ensure_future(connection.read_input(conn, 60))
+    asyncio.ensure_future(connection.write_output(conn, 10))
 
     active_connections.append(conn)
 
@@ -37,4 +37,5 @@ async def main():
     async with server:
         await server.serve_forever()
 
-asyncio.run(main())
+def run():
+    asyncio.run(main())
