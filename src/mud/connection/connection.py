@@ -28,41 +28,41 @@ class Connection:
         self.writer_coroutine_closed = False
 
 
-async def read_input(connection, timeout: int=None):
-    assert timeout > 1 or timeout is None, "timeout should not be less then 1, only None"
+    async def read_input(self, timeout: int=60):
+        assert timeout >= 10, "timeout should not be less then 10s"
 
-    while connection.is_alive: # support remotely killing connections by a single value
-        try:
-            result = await asyncio.wait_for(connection.reader.readline(), timeout=timeout)
+        while self.is_alive: # support remotely killing connections by a single value
+            try:
+                result = await asyncio.wait_for(self.reader.readline(), timeout=timeout)
 
-            if result == b'': # connection closed prematurely
-                connection.is_alive = False
-                break
+                if result == b'': # connection closed prematurely
+                    self.is_alive = False
+                    break
 
-            await connection.reader_queue.put(result) # block here if command processor overload
+                await self.reader_queue.put(result) # block here if command processor overload
 
-        # client took too long to send new commands, check if connection got terminated
-        except asyncio.TimeoutError:
-            continue # restart loop to check if connection is alive
+            # client took too long to send new commands, check if connection got terminated
+            except asyncio.TimeoutError:
+                continue # restart loop to check if connection is alive
 
-    connection.reader_coroutine_closed = True # teardown logic
+        self.reader_coroutine_closed = True # teardown logic
 
 
-async def write_output(connection, timeout: int=2):
-    assert timeout > 1, "sleep should not be less then 1, only None"
+    async def write_output(self, timeout: int=20):
+        assert timeout >= 10, "timeout should not be less then 10s"
 
-    while connection.is_alive:
-        try:
-            msg = await asyncio.wait_for(connection.writer_queue.get(), timeout=timeout)
+        while self.is_alive:
+            try:
+                msg = await asyncio.wait_for(self.writer_queue.get(), timeout=timeout)
 
-        # no new messages to write for too long, check if connection is still alive
-        except asyncio.TimeoutError:
-            continue # restart loop to check if connection is alive
+            # no new messages to write for too long, check if connection is still alive
+            except asyncio.TimeoutError:
+                continue # restart loop to check if connection is alive
 
-        connection.writer.write(msg)
-        await connection.writer.drain()
+            self.writer.write(msg)
+            await self.writer.drain()
 
-    # teardown logic
-    connection.writer.close()
-    connection.writer_coroutine_closed = True
-    connection.is_alive = False
+        # teardown logic
+        self.writer.close()
+        self.writer_coroutine_closed = True
+        self.is_alive = False

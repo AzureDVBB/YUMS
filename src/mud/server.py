@@ -9,16 +9,16 @@ Created on Tue Jul 14 08:45:42 2020
 import asyncio
 import socket
 
-import connection
+from connection import Connection
 
 active_connections = []
 
 async def handle_connection(reader, writer):
-    conn = connection.Connection(reader, writer)
-    asyncio.ensure_future(connection.read_input(conn, 60))
-    asyncio.ensure_future(connection.write_output(conn, 10))
+    conn = Connection(reader, writer)
+    asyncio.ensure_future(conn.read_input(60))
+    asyncio.ensure_future(conn.write_output(20))
 
-    active_connections.append(conn)
+    active_connections.append(conn) # add to list of active connection
 
     print(f"Recieved new connection from {conn.address}")
     while conn.is_alive: # periodically check if connection is still active
