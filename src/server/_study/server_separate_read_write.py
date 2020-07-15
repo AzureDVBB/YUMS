@@ -48,6 +48,7 @@ async def read_input(connection, timeout: int=None):
             connection.timed_out = False # reset this on every recieved message
             print(f"READER: Recieved message {result} from {connection.address}")
             if result == b'': # connection closed prematurely
+                print(f"READER Disconnected from {connection.address}")
                 connection.is_alive = False
                 break
 
@@ -60,10 +61,13 @@ async def read_input(connection, timeout: int=None):
         except asyncio.TimeoutError:
             print(f"READER {connection.address} timed out")
             if not connection.timed_out:
-                print(f"READER sending are-you-there pin on {connection.address}")
+                print(f"READER sending are-you-there ping on {connection.address}")
                 connection.timed_out = True
+                # FIXME: the telnet AYT command is not guaranteed to be supported and is not guaranteed to return
+                # TINTIN++ returns once with IAC DONT AYT and then never returns again
+                # MUDLET returns always with IAC WONT AYT with every ping
                 await connection.writer_queue.put(bytes([255, 253, 246]))
-                await asyncio.sleep(5)
+                                                  # 'keepalive ****\r\n'.encode())
             else:
                 print(f"READER 2nd commection timeout in a row, disconnecting {connection.address}")
                 connection.is_alive = False
@@ -77,11 +81,7 @@ async def write_output(connection, timeout: int=2):
 
     print(f"WRITER Starting to serve write requests for {connection.address}")
     while connection.is_alive:
-        if connection.is_alive == False:
-            print(f"WRITER Connection closed from {connection.address}")
-            break
         # print(f"WRITER inside loop")
-
         try:
             msg = await asyncio.wait_for(connection.writer_queue.get(), timeout=timeout)
         except asyncio.TimeoutError:
@@ -93,7 +93,7 @@ async def write_output(connection, timeout: int=2):
         await connection.writer.drain()
 
     # teardown logic
-    await connection.writer.close()
+    connection.writer.close()
     connection.writer_coroutine_closed = True
     connection.is_alive = False
 
@@ -109,16 +109,17 @@ async def echo(conn):
 
 async def handle_connection(reader, writer):
     conn = Connection(reader, writer)
-    read_task = asyncio.ensure_future(read_input(conn, 10))
-    write_task = asyncio.ensure_future(write_output(conn, 2))
-    echo_task = asyncio.ensure_future(echo(conn))
+    asyncio.ensure_future(read_input(conn, 20))
+    asyncio.ensure_future(write_output(conn, 2))
+    asyncio.ensure_future(echo(conn))
 
-    active_connections.append({"connection_object": conn,
-                               "read_task": read_task,
-                               "write_task": write_task})
+    active_connections.append(conn)
 
     print(f"Recieved new connection from {conn.address}")
-    await asyncio.wait([read_task, write_task, echo_task])
+    while conn.is_alive:
+        await asyncio.sleep(10)
+    # teardown, so the active connections is updated
+    active_connections.remove(conn)
 
 
 async def main():
