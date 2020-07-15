@@ -21,7 +21,7 @@ async def handle_connection(reader, writer):
     print(f"!!!! New connection recived from: {addr}")
 
     ############# TELNET negotiations testing
-    print(f"??<< Sending 'are_you_there' command...")
+    print(f"??<< Sending 'are_you_there' command {bytes([255, 253, 246])}")
     # NOTE: this sends a TELNET request to the connected client to check if they are still there
     # the first value '255' is 'interpret-as-command (IAC)' must precede all commands sent to
     # clients, next is the '253' or 'do-preform (DO)' command, indicating the client

@@ -9,9 +9,6 @@ description:
 All command codes used by the TELNET protocol.
 
 There are also pre-programmed commands with the sent commands and expected responses.
-
-It is all done with class methods as properties, so we get support of docstrings as
-an excellent way to look up what they do from other modules with your IDE of choice.
 """
 
 class Code:
@@ -113,7 +110,7 @@ class Command:
     expected responses (response).
     """
 
-    class are_you_there:
+    class are_you_there: # FIXME: sending it a second time in 20s will cause it to be ignored
         """Request and Response codes for the check to see if the client is still connected."""
 
         request = bytes([Code.IAC, Code.DO, Code.AYT])
