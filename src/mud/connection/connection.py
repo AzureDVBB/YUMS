@@ -39,7 +39,8 @@ class Connection:
                     self.is_alive = False
                     break
 
-                await self.reader_queue.put(result) # block here if command processor overload
+                # block here if command processor overload
+                await self.reader_queue.put(result.decode('ascii'))
 
             # client took too long to send new commands, check if connection got terminated
             except asyncio.TimeoutError:
@@ -59,7 +60,7 @@ class Connection:
             except asyncio.TimeoutError:
                 continue # restart loop to check if connection is alive
 
-            self.writer.write(msg)
+            self.writer.write(msg.encode('ascii') + b'\r\n')
             await self.writer.drain()
 
         # teardown logic
