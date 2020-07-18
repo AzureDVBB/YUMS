@@ -37,6 +37,9 @@ async def handle_connection(reader, writer):
                 player.write(player.character.welcome)
             else:
                 await conn.writer_queue.put(res[1])
+        else:
+            res = interpret(msg)
+            await conn.writer_queue.put(res[1])
 
 
     active_connections.remove(conn) # remove the connection as it closed from the list

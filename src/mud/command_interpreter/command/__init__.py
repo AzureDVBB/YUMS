@@ -1,7 +1,8 @@
 from . import login
+from . import echo
 
 # NOTE: list of packages, keep up to date along with the imports
-PACKAGES = [login,]
+PACKAGES = [login,echo]
 
 def compile_implemented_list_for_packages():
     # get all implemented function keys from all packages
