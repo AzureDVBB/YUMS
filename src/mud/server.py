@@ -9,9 +9,9 @@ Created on Tue Jul 14 08:45:42 2020
 import asyncio
 import socket
 
-from connection import Connection
-from player.player import Player
-from command_interpreter.interpreter import interpret
+from .connection import Connection
+from .player.player import Player
+from .command_interpreter.interpreter import interpret
 
 active_connections = []
 active_players = []
@@ -57,5 +57,3 @@ async def main():
 
 def run():
     asyncio.run(main())
-
-run()
