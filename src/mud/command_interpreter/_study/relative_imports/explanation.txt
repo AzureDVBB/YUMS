@@ -1,0 +1,15 @@
+Relative and Absolute are important for a more structured package/subpackage layout,
+as well as removing the need to have to copy and duplicate code allready present.
+
+In our use case, importing classes from other modules and subpackages from the overall package,
+to use as typehints.
+
+There are a few caveats with this style of importing:
+
+1, you can only do it if you have packages
+2, it will only work (from my experience) if you are outside the top-level package
+and are importing the whole lot, otherwise the top-level package will be named __main__ and
+subsequently importing from the top-level package, fails
+
+Thus in order for the relative and absolute imports to work properly, and run the package...
+the running script needs to be outside the package and import it as such to then run.
