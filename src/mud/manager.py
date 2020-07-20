@@ -7,8 +7,8 @@ Created on Sun Jul 19 15:21:04 2020
 """
 
 from .player import Player
-from mud.connection import Connection
-from mud.command_interpreter.interpreter import interpret
+from .connection import Connection
+from .command_interpreter import interpret
 
 class Manager:
     active_players = {}

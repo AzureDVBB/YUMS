@@ -8,4 +8,4 @@ Created on Sun Jul 19 08:03:41 2020
 
 import mud
 
-mud.connection_server.run()
+mud.server.run()

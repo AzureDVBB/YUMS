@@ -12,8 +12,8 @@ Also keeps track of player state and location.
 """
 
 import asyncio
-from mud.connection import Connection
-from mud.command_interpreter.interpreter import interpret
+from .connection import Connection
+from .command_interpreter import interpret
 
 class Player:
 
@@ -36,7 +36,7 @@ class Player:
     async def __interpreter_watch(self):
         while len(self.connections) > 0:
             command = await self.__command_queue.get()
-            result, message = interpret(command)
+            result, message = interpret(command, player=self)
             self.send(message)
 
     def add_connection(self, connection: Connection):

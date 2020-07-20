@@ -10,7 +10,7 @@ import asyncio
 import socket
 
 from .connection import Connection
-from .manager.manager import Manager
+from .manager import Manager
 
 mng = Manager()
 
