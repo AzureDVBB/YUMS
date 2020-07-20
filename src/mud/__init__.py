@@ -1,2 +1,1 @@
-from . import player, connection, command_interpreter
-from . import server
+from . import connection_server, manager, connection, command_interpreter
