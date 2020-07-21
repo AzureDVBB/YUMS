@@ -9,10 +9,13 @@ Created on Tue Jul 14 08:45:59 2020
 import asyncio
 
 class Connection:
-    # TODO: Optimize with __slots__
+    # TODO: ensure slots are up do date when changing things
+    __slots__ = ['reader', 'writer', 'address', 'read_queue', 'write_queue',
+                 'is_alive', 'reader_coroutine_closed', 'writer_coroutine_closed']
     # TODO: Test extensively
 
-    def __init__(self, reader: asyncio.streams.StreamReader, writer: asyncio.streams.StreamWriter):
+    def __init__(self, reader: asyncio.streams.StreamReader,
+                 writer: asyncio.streams.StreamWriter):
         self.reader = reader
         self.writer = writer
 

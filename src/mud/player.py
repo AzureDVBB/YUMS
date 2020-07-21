@@ -29,15 +29,24 @@ class Player:
 
     async def __command_watch(self, connection: Connection): # watch for command inputs
         while connection.is_alive:
-            command = await connection.read_queue.get()
-            # put the command from the connection into a shared player queue for the interpreter
-            await self.__command_queue.put(command)
+            try: # wrap the read queue into a timeout so it gracefully finishes once connection dies
+                command = await asyncio.wait_for(connection.read_queue.get(), 60)
+                # put the command from the connection into a shared player queue for the interpreter
+                await self.__command_queue.put(command)
+            except asyncio.TimeoutError:
+                # restart while loop to check again if the connection is alive still
+                continue
+        self.connections.remove(connection) # ensure connection is removed once it dies
 
     async def __interpreter_watch(self):
         while len(self.connections) > 0:
-            command = await self.__command_queue.get()
-            result, message = interpret(command, player=self)
-            self.send(message)
+            try: # wrap async function into a timeout so it won't wait forever with no connections
+                command = await asyncio.wait_for(self.__command_queue.get(), 60)
+                result, message = interpret(command, player=self)
+                self.send(message)
+            except asyncio.TimeoutError:
+                # restart the while loop to check if player lost all connections (loop can stop)
+                continue
 
     def add_connection(self, connection: Connection):
         self.connections.append(connection) # add connection to list of active connections

@@ -30,10 +30,10 @@ def interpret(msg: str, player = None):
         if command == 'login':
             return IMPLEMENTED['login'](value)
         else:
-            return (False, "Unrecognized command: " + command + "\r\n" +
-                    "Please use either: " + "\r\n" +
-                    "login <character name> <password>" + "\r\n"
-                    "login guest <guest name>")
+            return (False, f"Unrecognized command: {command}\r\n"
+                    f"Please use either: \r\n"
+                    f"login <character name> <password>\r\n"
+                    f"login guest <guest name>")
 
     # prevent program errors due to people logged in trying to login again
     elif command == 'login':
