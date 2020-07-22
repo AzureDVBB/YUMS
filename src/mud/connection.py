@@ -29,8 +29,8 @@ class Connection:
         self.reader_coroutine_closed = False
         self.writer_coroutine_closed = False
 
-        asyncio.ensure_future(self.__read_input())
-        asyncio.ensure_future(self.__write_output())
+        asyncio.create_task(self.__read_input())
+        asyncio.create_task(self.__write_output())
 
 
     async def __read_input(self, timeout: int=60):

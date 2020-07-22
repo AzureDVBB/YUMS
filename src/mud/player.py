@@ -25,7 +25,7 @@ class Player:
 
         # start watching for commands and interpret them as they come as a constant coroutine
         self.add_connection(connection)
-        asyncio.ensure_future(self.__interpreter_watch())
+        asyncio.create_task(self.__interpreter_watch())
 
     async def __command_watch(self, connection: Connection): # watch for command inputs
         while connection.is_alive:
@@ -50,12 +50,12 @@ class Player:
 
     def add_connection(self, connection: Connection):
         self.connections.append(connection) # add connection to list of active connections
-        asyncio.ensure_future(self.__command_watch(connection)) # watch for command inputs
+        asyncio.create_task(self.__command_watch(connection)) # watch for command inputs
 
     def send(self, value: str):
         for conn in self.connections:
             if conn.is_alive:
                 # send the value to all active connections as tasks, so full queues do not block
-                asyncio.ensure_future(conn.write_queue.put(value))
+                asyncio.create_task(conn.write_queue.put(value))
             else:
                 self.connections.remove(conn) # remove dead connections
