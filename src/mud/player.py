@@ -19,13 +19,22 @@ class Player:
 
     def __init__(self, connection: Connection, name: str):
 
-        self.connections = []
         self.character_name = name
-        self.__command_queue = asyncio.Queue(50)
 
+        ### connection specific data
+        self.connections = []
+        self.__command_queue = asyncio.Queue(50)
         # start watching for commands and interpret them as they come as a constant coroutine
         self.add_connection(connection)
         asyncio.create_task(self.__interpreter_watch())
+
+        ### location specific data
+        # TODO: generalize and initialize based on player that just logged in
+        self.location = [2,2]
+        self.location_connections = {'w': [1,2], 'e': [3,2], 's': [2,3], 'n': [2,1]}
+
+        # TEMP: add a look command to the command queue to display current spawned room
+        self.__command_queue.put_nowait('look')
 
     async def __command_watch(self, connection: Connection): # watch for command inputs
         while connection.is_alive:

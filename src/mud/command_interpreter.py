@@ -41,4 +41,8 @@ def interpret(msg: str, player = None):
 
     # player object passed in, commands interpreted for logged-in player
     elif command in IMPLEMENTED:
-        return IMPLEMENTED[command](value)
+        return IMPLEMENTED[command](value, player)
+
+    # invalid command handling
+    else:
+        return(False, f"Command not recognized: {msg}")

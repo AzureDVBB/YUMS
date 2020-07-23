@@ -6,7 +6,7 @@ Created on Fri Jul 17 19:55:37 2020
 @author: AzureDVBB
 """
 
-def echo(message: str):
+def echo(message: str, player):
     return (True, message)
 
 # make sure to have the IMPLEMENTED dictionary at the end of the file to house all defined commands
