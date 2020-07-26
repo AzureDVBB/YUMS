@@ -1,10 +1,9 @@
-from . import login
 from . import echo
 from . import move
 from . import look
 
 # NOTE: list of packages, keep up to date along with the imports
-PACKAGES = [login,echo,move,look]
+PACKAGES = [echo,move,look]
 
 def compile_implemented_list_for_packages():
     # get all implemented function keys from all packages

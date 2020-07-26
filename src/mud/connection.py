@@ -45,7 +45,7 @@ class Connection:
                     break
 
                 # block here if command processor overload
-                await self.read_queue.put(result.decode('ascii'))
+                await self.read_queue.put(result.decode('ascii').strip())
 
             # client took too long to send new commands, check if connection got terminated
             except asyncio.TimeoutError:

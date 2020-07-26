@@ -7,36 +7,58 @@ Created on Fri Jul 24 23:31:02 2020
 
 Helper functions for painless database accessing for common things. Now fully asynchronous!
 """
+import asyncio
+import motor.motor_asyncio
+# client = pymongo.MongoClient('mongodb://localhost:27017')
 
-import motor.motor_asyncio as motor
 
-client = motor.AsyncIOMotorClient('mongodb://localhost:27017') # change this for the database host
+class Database:
 
-__user_database_name = "test-users" # the database name where all user data is stored
-__character_collection_name = "test-characters" # collection where individual characters and login is stored
-__account_collection_name = "test-accounts" # collection where individual player accounts are stored
+    __user_database_name = "test-users" # the database name where all user data is stored
+    __character_collection_name = "test-characters" # collection where individual characters and login is stored
+    __account_collection_name = "test-accounts" # collection where individual player accounts are stored
 
-__character_collection = client[__user_database_name][__character_collection_name]
-__account_collection = client[__user_database_name][__user_database_name]
+    def __init__(self):
+        """
+        Initialize the asynchronous client for the database inside the running eventloop.
+        Due to the import happening before the event loop being established
+        this init function must be called from the main server function to ensure
+        the correct and running event loop is being passed on.
+        """
+        self.client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017',
+                                                        io_loop=asyncio.get_running_loop())
 
-async def get_character_credentials(name: str):
-    user = await __character_collection.find_one(name)
-    return None if user is None else {'name': user['name'],
-                                      'salt': user['salt'],
-                                      'password hash': user['password hash']}
+        self.__character_collection = self.client[Database.__user_database_name][Database.__character_collection_name]
+        self.__account_collection = self.client[Database.__user_database_name][Database.__user_database_name]
 
-async def check_character_name_existance(name: str):
-    character = await __character_collection.find_one(name)
-    return False if character is None else True
 
-async def create_new_character(name: str, salt: bytes, password_hash: bytes,
-                               extra_information: dict=None):
-    exists = check_character_name_existance(name)
-    if not exists:
-        new_character = {'name': name, 'salt': salt, 'password hash': password_hash}
-        if extra_information: # it is not None
-            new_character.update(extra_information)
-        await __character_collection.insert(new_character)
-        return True
-    else:
-        return False
+    async def __get_character_data(self, name: str):
+        return await self.__character_collection.find_one({'name': name})
+
+    async def get_character_credentials(self, name: str):
+        user = await self.__get_character_data(name)
+        return None if user is None else {'salt': user['salt'],
+                                          'password hash': user['password hash']}
+
+    async def is_existing_character(self, name: str):
+        character = await self.__get_character_data(name)
+        return False if character is None else True
+
+    async def create_new_character(self, name: str, salt: bytes, password_hash: bytes,
+                                   extra_information: dict=None):
+        if not await self.is_existing_character(name):
+            new_character = {'name': name, 'salt': salt, 'password hash': password_hash,
+                             'location': [2,2]} # TODO: set new player location
+            if extra_information: # it is not None
+                new_character.update(extra_information)
+            await self.__character_collection.insert_one(new_character)
+            return True
+        else:
+            return False
+
+    async def get_character_game_data(self, name: str):
+        if await self.is_existing_character(name):
+            character = await self.__get_character_data(name)
+            return {'name': character['name'], 'location': character['location']}
+        else:
+            return None

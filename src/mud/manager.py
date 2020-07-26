@@ -8,33 +8,82 @@ Created on Sun Jul 19 15:21:04 2020
 
 from .player import Player
 from .connection import Connection
-from .command_interpreter import interpret
+from .commands.helper_functions import split_cleanly
+from . import login_register
 
 class Manager:
-    active_players = {}
-    new_connections = []
+
+    def __init__(self):
+        self.active_players = {}
+        self.new_connections = []
+        self.database = None # database class, this needs a running loop reference hence need init
+        self.password_hasher = None # also needs the the running loop, hence need init
 
     async def add_connection(self, connection: Connection):
         self.new_connections.append(connection)
-        await connection.write_queue.put("Welcome to the in-development mud game!" +
-                                         "please enjoy your stay. \r\n" +
-                                         "You can log in by typing: \r\n" +
-                                         "login guest <name>")
-        while True:
+        await connection.write_queue.put(f"Welcome to the in-development mud game!"
+                                         f"please enjoy your stay. \r\n"
+                                         f"You can log in by typing: \r\n"
+                                         f"login <name> <password>\r\n"
+                                         f"Or register by typing:\r\n"
+                                         f"register <name> <password>\r\n"
+                                         f"Note that names should be lower case and cannot contain"
+                                         f"spaces, passwords cannot contain spaces.")
+
+        ######### Login and registration of new connections to a player object
+        attempts = 0
+        max_attempts = 5
+        while attempts < max_attempts:
             cmd = await connection.read_queue.get()
-            result, message = interpret(cmd)
-            if not (result is False):
-                await self.add_player(connection, result)
+            segmented_command = split_cleanly(cmd)
+
+            if len(segmented_command) != 3:
+                attempts +=1
+                await connection.write_queue.put(f"Command error: not understood {cmd}")
+                continue
+
+            command, name, password = segmented_command
+            if command == 'login':
+                succeeded, message = await login_register.login(name, password,
+                                                                self.database, self.password_hasher)
                 await connection.write_queue.put(message)
-                break
-            else:
+                if not (succeeded is False):
+                    await self.add_player(connection, name)
+                    break
+                else:
+                    attempts += 1
+
+            elif command == 'register':
+                await connection.write_queue.put(f"You are attempting to register with...\r\n"
+                                                 f"name: {name}\r\n"
+                                                 f"password: {password}\r\n"
+                                                 f"Is this correct? Type: 'yes' or 'y' to confirm. "
+                                                 f"Or cancel by typing 'no' 'n' or "
+                                                 f"anything else really.")
+
+                answer = await connection.read_queue.get()
+                if answer.strip().lower() in ('yes', 'y'):
+                    succeeded, message = await login_register.register(name, password,
+                                                                       self.database, self.password_hasher)
+                else:
+                    succeeded = False
+                    message = "Aborting..."
                 await connection.write_queue.put(message)
 
+                if succeeded:
+                    attempts = 0
+                    continue
+                else:
+                    attempts += 1
+                    continue
+
+        if attempts >= max_attempts:
+            connection.is_alive = False
         self.new_connections.remove(connection)
-
 
     async def add_player(self, connection: Connection, name: str):
         if name in self.active_players:
             self.active_players[name].add_connection(connection)
         else:
             self.active_players[name] = Player(connection, name)
+

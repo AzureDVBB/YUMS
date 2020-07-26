@@ -23,10 +23,10 @@ def pwd():
     # p: parallelization factor
     # maxmem: the maximum memory used
     # dklen: length of the derived hash
-    return scrypt(b"Hello World!", salt=urandom(512), n=(32768), r=11, p=1, maxmem=80000000, dklen=512)
+    return scrypt(b"Hello World!", salt=urandom(128), n=(32768), r=11, p=1, maxmem=80000000, dklen=128)
 
 def pwd_hash(pwd, salt):
-    return scrypt(pwd.encode(), salt, n=32768, r=11, p=1, maxmem=80000000, dkeylen=512)
+    return scrypt(pwd.encode(), salt, n=32768, r=11, p=1, maxmem=80000000, dklen=128)
 
 # time the hashing function
 print(f"{round(timeit.timeit(pwd, number=100)/100, 6)} s")

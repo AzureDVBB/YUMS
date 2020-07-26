@@ -11,6 +11,8 @@ import socket
 
 from .connection import Connection
 from .manager import Manager
+from .database import Database
+from.password_hasher import PasswordHasher
 
 mng = Manager()
 
@@ -21,6 +23,8 @@ async def handle_connection(reader, writer):
 
 
 async def main():
+    mng.database = Database() # initialize the database for the manager and pass a reference to it
+    mng.password_hasher = PasswordHasher()
     server = await asyncio.start_server(handle_connection, '127.0.0.1', 8888,
                                         family=socket.AF_INET, flags=socket.AI_PASSIVE,
                                         reuse_address = 1, reuse_port = 1,
@@ -30,6 +34,7 @@ async def main():
 
     async with server:
         await server.serve_forever()
+
 
 def run():
     asyncio.run(main())
