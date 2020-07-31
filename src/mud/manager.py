@@ -85,5 +85,5 @@ class Manager:
         if name in self.active_players:
             self.active_players[name].add_connection(connection)
         else:
-            self.active_players[name] = Player(connection, name)
+            self.active_players[name] = Player(self.database, connection, name)
 

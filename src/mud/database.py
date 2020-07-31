@@ -18,6 +18,9 @@ class Database:
     __character_collection_name = "test-characters" # collection where individual characters and login is stored
     __account_collection_name = "test-accounts" # collection where individual player accounts are stored
 
+    __world_database_name = "test-world" # the database name where all world data is kept
+    __tutorial_collection_name = "tutorial" # the name of the collection where the tutorial is stored
+
     def __init__(self):
         """
         Initialize the asynchronous client for the database inside the running eventloop.
@@ -30,6 +33,8 @@ class Database:
 
         self.__character_collection = self.client[Database.__user_database_name][Database.__character_collection_name]
         self.__account_collection = self.client[Database.__user_database_name][Database.__user_database_name]
+
+        self.__tutorial_collection = self.client[Database.__world_database_name][Database.__tutorial_collection_name]
 
 
     async def __get_character_data(self, name: str):
@@ -62,3 +67,6 @@ class Database:
             return {'name': character['name'], 'location': character['location']}
         else:
             return None
+
+    async def get_room_by_id(self, room_id):
+        return await self.__tutorial_collection.find_one({'room_id': room_id})

@@ -13,13 +13,14 @@ Also keeps track of player state and location.
 
 import asyncio
 from .connection import Connection
-from .command_interpreter import interpret
+from .commands import Interpreter
 
 class Player:
 
-    def __init__(self, connection: Connection, name: str):
+    def __init__(self, database, connection: Connection, name: str):
 
         self.character_name = name
+        self.interpreter = Interpreter(self, database)
 
         ### connection specific data
         self.connections = []
@@ -51,8 +52,7 @@ class Player:
         while len(self.connections) > 0:
             try: # wrap async function into a timeout so it won't wait forever with no connections
                 command = await asyncio.wait_for(self.__command_queue.get(), 60)
-                result, message = interpret(command, player=self)
-                self.send(message)
+                await self.interpreter.process(command)
             except asyncio.TimeoutError:
                 # restart the while loop to check if player lost all connections (loop can stop)
                 continue

@@ -1,30 +1,36 @@
-from . import echo
-from . import move
-from . import look
+import sys as __sys
+import importlib as __importlib
 
-# NOTE: list of packages, keep up to date along with the imports
-PACKAGES = [echo,move,look]
+from . import helper_functions
 
-def compile_implemented_list_for_packages():
-    # get all implemented function keys from all packages
-    implemented_keys = []
-    for P in PACKAGES:
-        for key in P.IMPLEMENTED.keys():
-            implemented_keys.append(key.lower()) # ensure lower/upper case doesn't matter
-    # check for duplicates by comparing list length between a the list and it's set
-    duplicates = not (len(implemented_keys) == len(set(implemented_keys)))
+# names of the python modules/packages (folder/file name with no extension)
+__all__ = ['user_level']
 
-    # throw an error if there is a duplicate
-    result = {}
-    if duplicates:
-        raise ImportError("Duplicate keys found in packages' IMPLEMENTED")
+### Runtime Module Reloading support #############################
+##################################################################
+__importlib.invalidate_caches()
 
-    else:
-        for P in PACKAGES:
-            result.update(P.IMPLEMENTED)
+for __mod in __all__:
+    if __mod in dir():
+        __importlib.reload(__sys.modules[f"{__name__}.{__mod}"])
 
-    return result
+del __mod
 
-IMPLEMENTED = compile_implemented_list_for_packages()
+__importlib.reload(helper_functions)
+##################################################################
 
-del compile_implemented_list_for_packages
+from . import * # load all modules with filenames defined by '__all__'
+
+class Interpreter: # interpreter class that holds reference to player/database
+
+    def __init__(self, player, database): # default values so the examples can work
+        self.player = player
+        self.database = database
+
+    async def process(self, message: str):
+        command, message = helper_functions.separate_prefix(message)
+        if command in user_level.COMMANDS:
+            await user_level.COMMANDS[command](self.player, self.database, message)
+
+        else:
+            self.player.send(f"Command not understood: {command}")

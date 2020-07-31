@@ -27,12 +27,6 @@ class PasswordHasher:
     def generate_salt(length_bytes = 128):
         return urandom(length_bytes)
 
-    @staticmethod
-    def __hash_password_with_salt(args):
-        password, salt = args
-        # tune parameters for desired difficulty
-        return scrypt(password.encode(), salt=salt, n=32768, r=11, p=1, maxmem=80000000, dklen=128)
-
     async def hash_password_with_salt(self, password: str, salt: bytes):
         return await self.__loop.run_in_executor(self.__executor,
                                                  blocking_hash_password_with_salt,
