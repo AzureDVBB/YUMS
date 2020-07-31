@@ -8,11 +8,11 @@ Created on Mon Jul 27 15:38:36 2020
 Testing reloading of modules during runtime to commit changes made without restarting scripts.
 """
 
-import testing # load test module
-import packtest # load test package
-
 import time
 import importlib
+
+import testing # load test module
+import packtest # load test package
 
 variable_example = testing.run # test if taken references will change
 
