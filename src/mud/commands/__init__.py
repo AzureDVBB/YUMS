@@ -1,7 +1,7 @@
 import sys as __sys
 import importlib as __importlib
 
-from . import helper_functions
+from mud.text import split
 
 # names of the python modules/packages (folder/file name with no extension)
 __all__ = ['user_level']
@@ -16,7 +16,7 @@ for __mod in __all__:
 
 del __mod
 
-__importlib.reload(helper_functions)
+__importlib.reload(split) # causes it to be reloaded, but also to be loaded twice the first time
 ##################################################################
 
 from . import * # load all modules with filenames defined by '__all__'
@@ -28,7 +28,8 @@ class Interpreter: # interpreter class that holds reference to player/database
         self.database = database
 
     async def process(self, message: str):
-        command, message = helper_functions.separate_prefix(message)
+        command, message = split.command(message)
+
         if command in user_level.COMMANDS:
             await user_level.COMMANDS[command](self.player, self.database, message)
 

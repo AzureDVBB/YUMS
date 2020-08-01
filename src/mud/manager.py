@@ -8,16 +8,16 @@ Created on Sun Jul 19 15:21:04 2020
 
 from .player import Player
 from .connection import Connection
-from .commands.helper_functions import split_cleanly
+from . import text
 from . import login_register
 
 class Manager:
+    database = None # database class, this needs a running loop reference hence need init
+    password_hasher = None # also needs the the running loop, hence need init
 
     def __init__(self):
         self.active_players = {}
         self.new_connections = []
-        self.database = None # database class, this needs a running loop reference hence need init
-        self.password_hasher = None # also needs the the running loop, hence need init
 
     async def add_connection(self, connection: Connection):
         self.new_connections.append(connection)
@@ -30,12 +30,13 @@ class Manager:
                                          f"Note that names should be lower case and cannot contain"
                                          f"spaces, passwords cannot contain spaces.")
 
-        ######### Login and registration of new connections to a player object
+        ######### Login and registration of new connections to a player object ####################
+        ###########################################################################################
         attempts = 0
         max_attempts = 5
         while attempts < max_attempts:
             cmd = await connection.read_queue.get()
-            segmented_command = split_cleanly(cmd)
+            segmented_command = text.split.cleanly(cmd)
 
             if len(segmented_command) != 3:
                 attempts +=1
@@ -64,7 +65,8 @@ class Manager:
                 answer = await connection.read_queue.get()
                 if answer.strip().lower() in ('yes', 'y'):
                     succeeded, message = await login_register.register(name, password,
-                                                                       self.database, self.password_hasher)
+                                                                       self.database,
+                                                                       self.password_hasher)
                 else:
                     succeeded = False
                     message = "Aborting..."
@@ -80,6 +82,7 @@ class Manager:
         if attempts >= max_attempts:
             connection.is_alive = False
         self.new_connections.remove(connection)
+        ###########################################################################################
 
     async def add_player(self, connection: Connection, name: str):
         if name in self.active_players:
