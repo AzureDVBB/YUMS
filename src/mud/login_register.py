@@ -9,14 +9,13 @@ Functions for registration and login.
 """
 
 async def login(name, password, database, password_hasher): # pass in initialized database class
-    if await database.is_existing_character(name):
-        credentials = await database.get_character_credentials(name)
-        salt = credentials['salt']
-        pwd_hash = credentials['password hash']
-        valid = await password_hasher.validate_password_salt_hash(password, salt, pwd_hash)
+    if await database.character.exists(name):
+        credentials = await database.character.get_credentials(name)
+
+        valid = await password_hasher.validate_credentials_with_password(password, credentials)
 
         if valid:
-            character_data = await database.get_character_game_data(name)
+            character_data = await database.character.get_document(name)
             return (character_data, f"Login succeeded! Welcome to the game {character_data['name']}")
 
         else:
@@ -26,11 +25,10 @@ async def login(name, password, database, password_hasher): # pass in initialize
         return (False, f"Login error: there is no character with the name '{name}'")
 
 async def register(name, password, database, password_hasher):
-    if not await database.is_existing_character(name):
-        salt = password_hasher.generate_salt()
-        pwd_hash = await password_hasher.hash_password_with_salt(password, salt)
+    if not await database.character.exists(name):
+        credentials = await password_hasher.generate_credentials_with_password(password)
 
-        await database.create_new_character(name, salt, pwd_hash,
+        await database.character.create_new(name, credentials,
                                             extra_information=None) # TODO: add extra information (dict)
         return (True, f"Registration succeeded! You may now log in {name}")
 

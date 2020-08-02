@@ -10,12 +10,27 @@ Async ready password hasher, due to it being blocking it runs in a seperate proc
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 from hashlib import scrypt
-from os import urandom
+from secrets import token_bytes
 
-def blocking_hash_password_with_salt(args):
-        password, salt = args
+def blocking_hash_password_with_salt(args: dict):
+        # unpack the arguments
+        password = args['password']
+        salt = args['salt']
+        if 'srypt arguments' in args.keys(): # test if scrypt arguments supplied
+            n = args['scrypt arguments']['n']
+            r = args['scrypt arguments']['r']
+            p = args['scrypt arguments']['p']
+            maxmem = args['scrypt arguments']['maxmem']
+            dklen = args['scrypt arguments']['dklen']
+        else: # have a default if incorrect dictionary was passed in
+            n=32768
+            r=11
+            p=1
+            maxmem=80000000
+            dklen=128
         # tune parameters for desired difficulty
-        return scrypt(password.encode(), salt=salt, n=32768, r=11, p=1, maxmem=80000000, dklen=128)
+        # example tuning: n=32768, r=11, p=1, maxmem=80000000, dklen=128
+        return scrypt(password.encode(), salt=salt, n=n, r=r, p=p, maxmem=maxmem, dklen=dklen)
 
 class PasswordHasher:
 
@@ -24,16 +39,39 @@ class PasswordHasher:
         self.__executor = ProcessPoolExecutor(max_workers=1) # worker process pool
 
     @staticmethod
-    def generate_salt(length_bytes = 128):
-        return urandom(length_bytes)
+    def generate_salt(length_bytes = 128) -> bytes:
+        return token_bytes(length_bytes)
 
-    async def hash_password_with_salt(self, password: str, salt: bytes):
+
+    async def __hash_password_with_arguments(self, arguments: dict):
         return await self.__loop.run_in_executor(self.__executor,
                                                  blocking_hash_password_with_salt,
-                                                 (password, salt))
+                                                 arguments
+                                                 )
 
-    async def validate_password_salt_hash(self, password: str, salt: bytes,
-                                          hashed_salted_password: bytes):
+    async def generate_credentials_with_password(self, password: str):
+        scrypt_arg_dict = {'password': password,
+                           'salt': self.generate_salt(),
+                           'scrypt arguments': {'n': 32768, 'r': 11, 'p': 1,
+                                                'maxmem': 80000000,
+                                                'dklen': 128
+                                                }
+                           }
+        pwd_hash = await self.__hash_password_with_arguments(scrypt_arg_dict)
+        return {'password hash': pwd_hash,
+                'salt': scrypt_arg_dict['salt'],
+                'scrypt arguments': scrypt_arg_dict['scrypt arguments']
+                }
 
-        password_hashed = await self.hash_password_with_salt(password, salt)
-        return hashed_salted_password == password_hashed
+
+    async def validate_credentials_with_password(self, password: str, credentials: dict):
+        scrypt_arg_dict = {'password': password,
+                           'salt': credentials['salt'],
+                           'scryt arguments': credentials['scrypt arguments']
+                           }
+        pwd_hash = await self.__hash_password_with_arguments(scrypt_arg_dict)
+
+        if (pwd_hash == credentials['password hash']):
+            return True
+        else:
+            return False
