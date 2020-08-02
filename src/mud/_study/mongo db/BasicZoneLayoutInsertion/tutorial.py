@@ -12,43 +12,47 @@ client = pymongo.MongoClient('mongodb://localhost:27017')
 client.drop_database('test-world')
 world = client['test-world']['tutorial']
 
-tutorial = [{'room_id': [1,1], # XY coords
-             'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'s': [1,2], 'e': [2,1]}
+tutorial = [{'coordinates': [0,0,0], # XY coords
+             'description': "In the beginning, there was only the soft haze of the misty universe...",
+             'connections': {'s': [1,2,0]}
              },
-            {'room_id': [1,2], # XY coords
+            {'coordinates': [1,1,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'s': [1,3], 'e': [2,2], 'n': [1,1]}
+             'connections': {'s': [1,2,0], 'e': [2,1,0]}
              },
-            {'room_id': [1,3], # XY coords
+            {'coordinates': [1,2,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'n': [1,2], 'e': [2,3]}
+             'connections': {'s': [1,3,0], 'e': [2,2,0], 'n': [1,1,0]}
              },
-            {'room_id': [2,1], # XY coords
+            {'coordinates': [1,3,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,1], 'e': [3,1], 's': [2,2]}
+             'connections': {'n': [1,2,0], 'e': [2,3,0]}
              },
-            {'room_id': [2,2], # XY coords
+            {'coordinates': [2,1,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,2], 'e': [3,2], 's': [2,3], 'n': [2,1]}
+             'connections': {'w': [1,1,0], 'e': [3,1,0], 's': [2,2,0]}
              },
-            {'room_id': [2,3], # XY coords
+            {'coordinates': [2,2,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,3], 'e': [3,1], 'n': [3,3]}
+             'connections': {'w': [1,2,0], 'e': [3,2,0], 's': [2,3,0], 'n': [2,1,0]}
              },
-            {'room_id': [3,1], # XY coords
+            {'coordinates': [2,3,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,1], 's': [3,2]}
+             'connections': {'w': [1,3,0], 'e': [3,3,0], 'n': [3,2,0]}
              },
-            {'room_id': [3,2], # XY coords
+            {'coordinates': [3,1,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,2], 'n': [3,1], 's': [3,3]}
+             'connections': {'w': [2,1,0], 's': [3,2,0]}
              },
-            {'room_id': [3,3], # XY coords
+            {'coordinates': [3,2,0], # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,3], 'n': [3,2]}
+             'connections': {'w': [2,2,0], 'n': [3,1,0], 's': [3,3,0]}
+             },
+            {'coordinates': [3,3,0], # XY coords
+             'description': "All you see before you is but a never ending fog of swirling mist.",
+             'connections': {'w': [2,3,0], 'n': [3,2,0]}
              }
             ]
 
 print(world.insert_many(tutorial).inserted_ids)
-print(client['test-world']['tutorial'].find_one({'room_id': [2,2]}))
+print(client['test-world']['tutorial'].find_one({'coordinates': [2,2,0]}))

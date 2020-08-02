@@ -9,15 +9,16 @@ Created on Thu Jul 23 16:14:43 2020
 async def handle(player, database, message):
 
     if message == '':
-        room = await database.get_room_by_id(player.location)
+        # TODO: make world, name also a player, thingy
+        room = await database.world.get_room_in_world_by_coordinates('tutorial', player.location)
         if room is None:
             player.send(f"Database ERROR: Room not found {player.location}")
         else:
-            room_id = room['room_id']
+            coordinates = room['coordinates']
             desc = room['description']
             exits = list(room['connections'].keys())
 
-            player.send(f"Room ID: {room_id}\r\n"
+            player.send(f"Room coordinates: {coordinates}\r\n"
                         f"{desc}\r\n"
                         f"Exits: {exits}")
     else:

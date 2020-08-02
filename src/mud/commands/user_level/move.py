@@ -13,23 +13,28 @@ async def handle(player, database, message: str):
     if len(cmd.split(' ')) != 1:
         player.send(f'unrecognized movement command: {message}')
 
-    elif cmd in player.location_connections:
-        next_room_id = player.location_connections[cmd]
-        next_room = await database.get_room_by_id(next_room_id)
+    current_room = await database.world.get_room_connections_in_world_by_coordinates('tutorial',
+                                                                                     player.location)
+
+    if cmd in current_room['connections']:
+        # TODO: have a database call for the current room connection instead of player stored
+        next_room_coords = current_room['connections'][cmd]
+        # TODO: make world name be stored in player
+        next_room = await database.world.get_room_in_world_by_coordinates("tutorial",
+                                                                          next_room_coords)
 
         if next_room is None:
-            player.send(f"Database ERROR: Cannot find room with id {next_room_id}")
+            player.send(f"Database ERROR: Cannot find room with id {next_room_coords}")
 
         else:
-            player.location = next_room['room_id']
-            player.location_connections = next_room['connections']
+            player.location = next_room['coordinates']
 
-            room_id = next_room['room_id']
+            coordinates = next_room['coordinates']
             desc = next_room['description']
-            room_exits = list(next_room['connections'].keys())
+            room_exits = next_room['connections']
 
             player.send(f"You walk off towards '{cmd}' .. or atleast what you percieve as such in the fog\r\n"
-                        f"{room_id}\r\n"
+                        f"{coordinates}\r\n"
                         f"{desc}\r\n"
                         f"Exits: {room_exits}")
 

@@ -17,9 +17,10 @@ from .commands import Interpreter
 
 class Player:
 
-    def __init__(self, database, connection: Connection, name: str):
+    # async def to allow awaiting on database fetching
+    def __init__(self, database, connection: Connection, character_document):
 
-        self.character_name = name
+        self.character_name = character_document['name']
         self.interpreter = Interpreter(self, database)
 
         ### connection specific data
@@ -31,11 +32,11 @@ class Player:
 
         ### location specific data
         # TODO: generalize and initialize based on player that just logged in
-        self.location = [2,2]
-        self.location_connections = {'w': [1,2], 'e': [3,2], 's': [2,3], 'n': [2,1]}
+        self.location = character_document['location']
 
         # TEMP: add a look command to the command queue to display current spawned room
         self.__command_queue.put_nowait('look')
+
 
     async def __command_watch(self, connection: Connection): # watch for command inputs
         while connection.is_alive:
@@ -48,6 +49,7 @@ class Player:
                 continue
         self.connections.remove(connection) # ensure connection is removed once it dies
 
+
     async def __interpreter_watch(self):
         while len(self.connections) > 0:
             try: # wrap async function into a timeout so it won't wait forever with no connections
@@ -57,9 +59,11 @@ class Player:
                 # restart the while loop to check if player lost all connections (loop can stop)
                 continue
 
+
     def add_connection(self, connection: Connection):
         self.connections.append(connection) # add connection to list of active connections
         asyncio.create_task(self.__command_watch(connection)) # watch for command inputs
+
 
     def send(self, value: str):
         for conn in self.connections:

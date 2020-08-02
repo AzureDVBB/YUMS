@@ -45,11 +45,11 @@ class Manager:
 
             command, name, password = segmented_command
             if command == 'login':
-                succeeded, message = await login_register.login(name, password,
-                                                                self.database, self.password_hasher)
+                result, message = await login_register.login(name, password,
+                                                             self.database, self.password_hasher)
                 await connection.write_queue.put(message)
-                if not (succeeded is False):
-                    await self.add_player(connection, name)
+                if not (result is False):
+                    await self.add_player(connection, name, result)
                     break
                 else:
                     attempts += 1
@@ -64,15 +64,15 @@ class Manager:
 
                 answer = await connection.read_queue.get()
                 if answer.strip().lower() in ('yes', 'y'):
-                    succeeded, message = await login_register.register(name, password,
-                                                                       self.database,
-                                                                       self.password_hasher)
+                    result, message = await login_register.register(name, password,
+                                                                    self.database,
+                                                                    self.password_hasher)
                 else:
-                    succeeded = False
+                    result = False
                     message = "Aborting..."
                 await connection.write_queue.put(message)
 
-                if succeeded:
+                if result:
                     attempts = 0
                     continue
                 else:
@@ -84,9 +84,9 @@ class Manager:
         self.new_connections.remove(connection)
         ###########################################################################################
 
-    async def add_player(self, connection: Connection, name: str):
+    async def add_player(self, connection: Connection, name: str, character_document):
         if name in self.active_players:
             self.active_players[name].add_connection(connection)
         else:
-            self.active_players[name] = Player(self.database, connection, name)
+            self.active_players[name] = Player(self.database, connection, character_document)
 
