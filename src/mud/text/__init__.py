@@ -6,7 +6,7 @@ import sys as __sys
 import importlib as __importlib
 
 # names of the python modules/packages (folder/file name with no extension)
-__all__ = ['text']
+__all__ = ['split']
 
 ### Runtime Module Reloading support #############################
 ##################################################################
