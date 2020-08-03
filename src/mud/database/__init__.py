@@ -43,5 +43,11 @@ class Database:
         self.client = motor.motor_asyncio.AsyncIOMotorClient(database_uri,
                                                              io_loop=asyncio.get_running_loop()
                                                              )
-        self.character = character.Character(self.client[self.__user_database_name][self.__character_collection_name])
-        self.world = world.World(self.client[self.__world_database_name])
+
+        # add a thin layer on the databases/collections to allow direct manipulation
+        self.character = self.client[self.__user_database_name][self.__character_collection_name]
+        self.world = self.client[self.__world_database_name]
+
+        # add methods to abstract away complex methods and database operations
+        self.character_helper_methods = character.Character(self.character)
+        self.world_helper_methods = world.World(self.world)

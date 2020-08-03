@@ -10,7 +10,7 @@ async def handle(player, database, message):
 
     if message == '':
         # TODO: make world, name also a player, thingy
-        room = await database.world.get_room_in_world_by_coordinates('tutorial', player.location)
+        room = await database.world_helper_methods.get_room_document('tutorial', player.location)
         if room is None:
             player.send(f"Database ERROR: Room not found {player.location}")
         else:

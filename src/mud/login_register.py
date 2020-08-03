@@ -8,14 +8,14 @@ Created on Fri Jul 24 13:14:32 2020
 Functions for registration and login.
 """
 
-async def login(name, password, database, password_hasher): # pass in initialized database class
-    if await database.character.exists(name):
-        credentials = await database.character.get_credentials(name)
+async def login(name: str, password: str, database, password_hasher): # pass in initialized database class
+    if await database.character_helper_methods.exists(name):
+        credentials = await database.character_helper_methods.get_credentials(name)
 
         valid = await password_hasher.validate_credentials_with_password(password, credentials)
 
         if valid:
-            character_data = await database.character.get_document(name)
+            character_data = await database.character_helper_methods.get_document(name)
             return (character_data, f"Login succeeded! Welcome to the game {character_data['name']}")
 
         else:
@@ -25,12 +25,11 @@ async def login(name, password, database, password_hasher): # pass in initialize
         return (False, f"Login error: there is no character with the name '{name}'")
 
 async def register(name, password, database, password_hasher):
-    if not await database.character.exists(name):
+    if not await database.character_helper_methods.exists(name):
         credentials = await password_hasher.generate_credentials_with_password(password)
 
-        await database.character.create_new(name, credentials,
-                                            extra_information=None) # TODO: add extra information (dict)
-        return (True, f"Registration succeeded! You may now log in {name}")
+        return await database.character_helper_methods.create_new(name, credentials,
+                                                                  extra_information=None) # TODO: add extra information (dict)
 
     else:
         return (False, f"Registraton error: A character by the name {name} allready exists.\r\n"

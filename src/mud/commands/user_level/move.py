@@ -13,14 +13,15 @@ async def handle(player, database, message: str):
     if len(cmd.split(' ')) != 1:
         player.send(f'unrecognized movement command: {message}')
 
-    current_room = await database.world.get_room_connections_in_world_by_coordinates('tutorial',
-                                                                                     player.location)
+    current_room = await database.world_helper_methods.get_room_document_fields('tutorial',
+                                                                                player.location,
+                                                                                'connections')
 
     if cmd in current_room['connections']:
         # TODO: have a database call for the current room connection instead of player stored
         next_room_coords = current_room['connections'][cmd]
         # TODO: make world name be stored in player
-        next_room = await database.world.get_room_in_world_by_coordinates("tutorial",
+        next_room = await database.world_helper_methods.get_room_document("tutorial",
                                                                           next_room_coords)
 
         if next_room is None:

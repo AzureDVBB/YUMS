@@ -13,30 +13,35 @@ class Character:
     def __init__(self, collection):
         self.collection = collection
 
-    async def get_document_field(self, name: str, field_name: str):
-        # TODO: make it accept a list of fields to get and return
 
-        document = await self.collection.find_one({"name": name}, # search for document with field
-                                                  {field_name: 1, # return specific field from document
-                                                   "_id": 0} # suppress result containing "_id" field
-                                                  ) # return only the credentials dict
+    async def get_document_fields(self, name: str, field_names: list) -> dict:
+        whitelisted_fields = {field: 1 for field in field_names} # works like a list comprehension
+
+        document = await self.collection.find_one( # world_name collection in the database
+                                                  {'name': name}, # get room by id
+                                                  {'_id': 0, # do not get the document id
+                                                   }.update(whitelisted_fields) # add whitelist to dict
+                                                  )
 
         # return None if document does not exist or document has no field with name: field_name
-        return document[field_name] if document and (field_name in document) else None
+        return document if document else None
+
 
     async def get_document(self, name: str):
         return await self.collection.find_one({"name": name},
-                                              {"_id": 0, "credentials": 0})
+                                              {"_id": 0, "credentials": 0}
+                                              )
+
 
     async def get_credentials(self, name: str):
-        return await self.get_document_field(name, "credentials")
+        document = await self.get_document_fields(name, 'credentials')
+        return document['credentials']
 
-    async def get_location(self, name: str):
-        return await self.get_document_field(name, "location")
 
     async def exists(self, name: str):
         # return True if a non-empty dictionary is returned, False otherwise, for a given name
-        return True if await self.get_document_field(name, "name") else False
+        return True if await self.get_document_fields(name, "name") else False
+
 
     async def create_new(self, name: str, credentials: dict, extra_information=None):
         # TODO: add support for extra information during registration
