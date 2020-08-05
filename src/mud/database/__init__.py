@@ -40,9 +40,11 @@ class Database:
         this init function must be called from the main server function to ensure
         the correct and running event loop is being passed on.
         """
+
+        # TODO: If issues arise, bump up the max pool size, each change stream cursor makes 1 connection
         self.client = motor.motor_asyncio.AsyncIOMotorClient(database_uri,
-                                                             io_loop=asyncio.get_running_loop()
-                                                             )
+                                                             io_loop=asyncio.get_running_loop(),
+                                                             maxPoolSize=10000)
 
         # add a thin layer on the databases/collections to allow direct manipulation
         self.character = self.client[self.__user_database_name][self.__character_collection_name]
