@@ -23,15 +23,14 @@ from . import * # load all modules with filenames defined by '__all__'
 
 class Interpreter: # interpreter class that holds reference to player/database
 
-    def __init__(self, player, database): # default values so the examples can work
-        self.player = player
+    def __init__(self, database): # default values so the examples can work
         self.database = database
 
-    async def process(self, message: str):
+    async def process(self, player, message: str):
         command, message = split.command(message)
 
         if command in user_level.COMMANDS:
-            await user_level.COMMANDS[command](self.player, self.database, message)
+            await user_level.COMMANDS[command](player, self.database, message)
 
         else:
             self.player.send(f"Command not understood: {command}")
