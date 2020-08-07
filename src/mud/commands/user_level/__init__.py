@@ -2,7 +2,7 @@ import sys as __sys
 import importlib as __importlib
 
 # names of the python packages/modules (folder/file names with no extension)
-__all__ = ['look', 'echo', 'move']
+__all__ = ['look', 'echo', 'move', 'say']
 
 ### Runtime Module Reloading support #############################
 ############## see 'commands/__init__.py' for more comments ######

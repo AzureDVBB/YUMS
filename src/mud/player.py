@@ -12,25 +12,34 @@ Also keeps track of player state and location.
 """
 
 import asyncio
-from .connection import Connection
+
+# Type hints and IDE help
+from mud.connection import Connection
+
+# data structures
+from .database.datatypes import Location, Coordinates
+
 
 class Player:
 
     # async def to allow awaiting on database fetching
-    def __init__(self, database, connection: Connection, character_document):
+    def __init__(self, database, connection: Connection, character_document,
+                 world_manager):
 
         self.character_name = character_document['name']
 
         ### connection specific data
-        self.connections = []
+        self.__connections = []
         self.command_queue = asyncio.Queue(50)
 
         # start watching for commands on the first connection
         self.add_connection(connection)
 
         ### location specific data
-        # TODO: generalize and initialize based on player that just logged in
-        self.location = character_document['location']
+        self.__location = Location.from_dict(character_document['location'])
+
+        ### reference to the movement logic from world manager
+        self.__world_manager = world_manager
 
 
     async def __command_watch(self, connection: Connection): # watch for command inputs
@@ -42,20 +51,39 @@ class Player:
             except asyncio.TimeoutError:
                 # restart while loop to check again if the connection is alive still
                 continue
-        self.connections.remove(connection) # ensure connection is removed once it dies
+        self.__connections.remove(connection) # ensure connection is removed once it dies
 
         return None # required return for async function definitions
 
 
+    @property
+    def location(self): # cannot directly set location once initialized,
+        return self.__location
+
+    @property
+    def connection_count(self):
+        len(self.__connections)
+
+    @property
+    def has_connections(self):
+        return True if self.__connections else False
+
+
+    def move(self, new_location: Location):
+        self.__world_manager.remove_player(self)
+        self.__location = new_location
+        self.__world_manager.add_player(self)
+
+
     def add_connection(self, connection: Connection):
-        self.connections.append(connection) # add connection to list of active connections
+        self.__connections.append(connection) # add connection to list of active connections
         asyncio.create_task(self.__command_watch(connection)) # watch for command inputs
 
 
     def send(self, value: str):
-        for conn in self.connections:
+        for conn in self.__connections:
             if conn.is_alive:
                 # send the value to all active connections as tasks, so full queues do not block
                 asyncio.create_task(conn.write_queue.put(value))
             else:
-                self.connections.remove(conn) # remove dead connections
+                self.__connections.remove(conn) # remove dead connections

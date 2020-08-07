@@ -12,57 +12,68 @@ client = pymongo.MongoClient('mongodb://localhost:27017')
 client.drop_database('test-world')
 world = client['test-world']['tutorial']
 
-tutorial = [{'coordinates': [0,0,0], # XY coords
+tutorial = [{'coordinates': {'x': 0, 'y': 0, 'z': 0}, # XY coords
              'description': "In the beginning, there was only the soft haze of the misty universe...",
-             'connections': {'s': [1,2,0]},
+             'connections': {'s': {'x': 1, 'y': 2, 'z': 0}},
              'chatlog': {}
              },
-            {'coordinates': [1,1,0], # XY coords
+            {'coordinates': {'x': 1, 'y': 1, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'s': [1,2,0], 'e': [2,1,0]},
+             'connections': {'s': {'x': 1, 'y': 2, 'z': 0}, 'e': {'x': 2, 'y': 1, 'z': 0}},
              'chatlog': {}
              },
-            {'coordinates': [1,2,0], # XY coords
+            {'coordinates': {'x': 1, 'y': 2, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'s': [1,3,0], 'e': [2,2,0], 'n': [1,1,0]},
+             'connections': {'s': {'x': 1, 'y': 3, 'z': 0}, 'e': {'x': 2, 'y': 2, 'z': 0},
+                             'n': {'x': 1, 'y': 1, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [1,3,0], # XY coords
+            {'coordinates': {'x': 1, 'y': 3, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'n': [1,2,0], 'e': [2,3,0]},
+             'connections': {'n': {'x': 1, 'y': 2, 'z': 0}, 'e': {'x': 2, 'y': 3, 'z': 0}},
              'chatlog': {}
              },
-            {'coordinates': [2,1,0], # XY coords
+            {'coordinates': {'x': 2, 'y': 1, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,1,0], 'e': [3,1,0], 's': [2,2,0]},
+             'connections': {'w': {'x': 1, 'y': 1, 'z': 0}, 'e': {'x': 3, 'y': 1, 'z': 0},
+                             's': {'x': 2, 'y': 2, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [2,2,0], # XY coords
+            {'coordinates': {'x': 2, 'y': 2, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,2,0], 'e': [3,2,0], 's': [2,3,0], 'n': [2,1,0]},
+             'connections': {'w': {'x': 1, 'y': 2, 'z': 0}, 'e': {'x': 3, 'y': 2, 'z': 0},
+                             's': {'x': 2, 'y': 3, 'z': 0}, 'n': {'x': 2, 'y': 1, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [2,3,0], # XY coords
+            {'coordinates': {'x': 2, 'y': 3, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [1,3,0], 'e': [3,3,0], 'n': [3,2,0]},
+             'connections': {'w': {'x': 1, 'y': 3, 'z': 0}, 'e': {'x': 3, 'y': 3, 'z': 0},
+                             'n': {'x': 3, 'y': 2, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [3,1,0], # XY coords
+            {'coordinates': {'x': 3, 'y': 1, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,1,0], 's': [3,2,0]},
+             'connections': {'w': {'x': 2, 'y': 1, 'z': 0}, 's': {'x': 3, 'y': 2, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [3,2,0], # XY coords
+            {'coordinates': {'x': 3, 'y': 2, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,2,0], 'n': [3,1,0], 's': [3,3,0]},
+             'connections': {'w': {'x': 2, 'y': 2, 'z': 0}, 'n': {'x': 3, 'y': 1, 'z': 0},
+                             's': {'x': 3, 'y': 3, 'z': 0}
+                             },
              'chatlog': {}
              },
-            {'coordinates': [3,3,0], # XY coords
+            {'coordinates': {'x': 3, 'y': 3, 'z': 0}, # XY coords
              'description': "All you see before you is but a never ending fog of swirling mist.",
-             'connections': {'w': [2,3,0], 'n': [3,2,0]},
+             'connections': {'w': {'x': 2, 'y': 3, 'z': 0}, 'n': {'x': 3, 'y': 2, 'z': 0}},
              'chatlog': {}
              }
             ]
 
 print(world.insert_many(tutorial).inserted_ids)
-print(client['test-world']['tutorial'].find_one({'coordinates': [2,2,0]}))
+print(client['test-world']['tutorial'].find_one({'coordinates': {'x': 2, 'y': 2, 'z': 0}}))

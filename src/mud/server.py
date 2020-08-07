@@ -16,7 +16,7 @@ mng = Manager()
 
 async def handle_connection(reader, writer):
     conn = Connection(reader, writer)
-    await mng.add_connection(conn)
+    await mng.player_manager.new_connection(conn)
     print(f"Recieved new connection from {conn.address}")
     return None # conform with async def spec
 
@@ -36,6 +36,7 @@ async def main():
         await server.serve_forever()
 
     return None # conform with async def spec
+
 
 def run():
     asyncio.run(main())

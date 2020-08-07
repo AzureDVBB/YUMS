@@ -7,28 +7,32 @@ Created on Thu Jul 23 10:33:28 2020
 
 First draft of the movement script
 """
+from mud.database.datatypes import Location, Coordinates
 
 async def handle(player, database, message: str):
     cmd = message.lower().strip()
     if len(cmd.split(' ')) != 1:
         player.send(f'unrecognized movement command: {message}')
 
-    current_room = await database.world_helper_methods.get_room_document_fields('tutorial',
-                                                                                player.location,
+    current_room = await database.world_helper_methods.get_room_document_fields(player.location.world_name,
+                                                                                player.location.coordinates.as_dict,
                                                                                 'connections')
 
     if cmd in current_room['connections']:
         # TODO: have a database call for the current room connection instead of player stored
         next_room_coords = current_room['connections'][cmd]
         # TODO: make world name be stored in player
-        next_room = await database.world_helper_methods.get_room_document("tutorial",
+        next_room = await database.world_helper_methods.get_room_document(player.location.world_name,
                                                                           next_room_coords)
 
         if next_room is None:
             player.send(f"Database ERROR: Cannot find room with id {next_room_coords}")
 
         else:
-            player.location = next_room['coordinates']
+            player.move(Location(player.location.world_name,
+                                 Coordinates.from_dict(next_room['coordinates'])
+                                 )
+                        )
 
             coordinates = next_room['coordinates']
             desc = next_room['description']

@@ -7,6 +7,7 @@ Created on Sat Aug  1 14:36:34 2020
 
 Database operations on the user database / character collection.
 """
+from .datatypes import Location, Coordinates
 
 class Character:
 
@@ -49,8 +50,10 @@ class Character:
             return (False, "ERROR: Character name allready in use.")
         else:
             await self.collection.insert_one({"name": name,
-                                              "credentials": credentials,
-                                              "location": [0, 0, 0] # TODO: update location/use spawn room
+                                              "location": Location("tutorial",
+                                                                   Coordinates(0,0,0)
+                                                                   ).as_dict,
+                                              "credentials": credentials
                                               }
                                              )
             return (True, f"SUCESS: Character created under the name: {name}\r\nYou may now log in.")
