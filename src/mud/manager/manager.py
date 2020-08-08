@@ -24,8 +24,8 @@ class Manager:
     def initialize_inside_running_loop(self): # event loop dependant initialization
         # initialize database
         self.database = Database()
-        self.command_interpreter = Interpreter(self.database)
-        self.authentication_manager = Authentication(self.database)
+        self.__command_interpreter = Interpreter(self.database, self)
+        self.__authentication_manager = Authentication(self.database)
 
-        self.player_manager = PlayerManager(self.database, self.command_interpreter,
-                                            self.world_manager, self.authentication_manager)
+        self.player_manager = PlayerManager(self.database, self.__command_interpreter,
+                                            self.world_manager, self.__authentication_manager)

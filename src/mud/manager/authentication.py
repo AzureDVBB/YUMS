@@ -95,5 +95,5 @@ class Authentication:
                     attempts += 1
                     continue
 
-        connection.is_alive = False
+        connection.is_alive = False # disconnect player, that failed to log in
         return None

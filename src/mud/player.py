@@ -17,7 +17,7 @@ import asyncio
 from mud.connection import Connection
 
 # data structures
-from .database.datatypes import Location, Coordinates
+from .database.datatypes import Location
 
 
 class Player:
@@ -42,6 +42,12 @@ class Player:
         self.__world_manager = world_manager
 
 
+    def __eq__(self, other):
+        if not isinstance(other, Player): raise TypeError("Equality operator only supported between player objects.")
+
+        return self.character_name == other.character_name
+
+
     async def __command_watch(self, connection: Connection): # watch for command inputs
         while connection.is_alive:
             try: # wrap the read queue into a timeout so it gracefully finishes once connection dies
@@ -57,7 +63,7 @@ class Player:
 
 
     @property
-    def location(self): # cannot directly set location once initialized,
+    def location(self): # cannot directly set location once initialized, to avoid issues with world manager
         return self.__location
 
     @property
@@ -69,7 +75,7 @@ class Player:
         return True if self.__connections else False
 
 
-    def move(self, new_location: Location):
+    def move(self, new_location: Location): # use the move method to help with moving with the world manager
         self.__world_manager.remove_player(self)
         self.__location = new_location
         self.__world_manager.add_player(self)

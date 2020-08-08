@@ -8,6 +8,8 @@ import importlib as __importlib
 import motor.motor_asyncio
 import asyncio
 
+from . import datatypes
+
 # names of the python modules/packages (folder/file name with no extension)
 __all__ = ['character', 'world']
 
@@ -40,6 +42,7 @@ class Database:
         this init function must be called from the main server function to ensure
         the correct and running event loop is being passed on.
         """
+        self.datatypes = datatypes
 
         # TODO: If issues arise, bump up the max pool size, each change stream cursor makes 1 connection
         self.client = motor.motor_asyncio.AsyncIOMotorClient(database_uri,

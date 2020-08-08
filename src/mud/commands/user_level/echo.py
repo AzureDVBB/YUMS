@@ -6,7 +6,7 @@ Created on Fri Jul 17 19:55:37 2020
 @author: AzureDVBB
 """
 
-async def echo(player, database, message):
+async def echo(database, manager, player, message):
     player.send(message)
 
     return None # to use AWAIT with this and pause command watchdog for players, needs a return

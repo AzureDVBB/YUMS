@@ -13,7 +13,6 @@ class LogEntry:
 
     character_name: str
     # time: object # TODO: add server time grabbing code
-    channel_name: str
     message: str
 
     @property

@@ -5,13 +5,16 @@ Created on Thu Jul 23 16:14:43 2020
 
 @author: AzureD
 """
+# type hint references and IDE help
+from mud.player import Player
+from mud.database import Database
 
-async def handle(player, database, message):
+async def handle(database: Database, manager, player: Player, message: str):
 
     if message == '':
         # TODO: make world, name also a player, thingy
-        room = await database.world_helper_methods.get_room_document(player.location.world_name,
-                                                                     player.location.coordinates.as_dict)
+        room = await database.world_helper_methods.get_room_document(player.location)
+
         if room is None:
             player.send(f"Database ERROR: Room not found {player.location}")
         else:

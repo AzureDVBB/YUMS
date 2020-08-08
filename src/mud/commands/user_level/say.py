@@ -5,19 +5,18 @@ Created on Wed Aug  5 10:19:13 2020
 
 @author: AzureD
 """
+# type hint references and IDE help
+from mud.player import Player
+from mud.database import Database
 
-async def handle(player, database, message: str):
+async def handle(database: Database, manager, player: Player, message: str):
 
-    log_entry = {'name': player.name,
-                 'time': None, # TODO: add the current server time on it
-                 'type': 'say',
-                 'message': message
-                 }
+    log_entry = database.datatypes.LogEntry(player.character_name, message)
 
-    await database.world_helper_methods.room_chatlog_add('tutorial', # TODO: use player world name
-                                                         player.location,
-                                                         'rp', # TODO: figure out the chat channel
-                                                         log_entry)
+    await database.world_helper_methods.room_chatlog_add(player.location, 'say', log_entry)
+
+    async for p in manager.world_manager.list_players(player.location):
+        p.send(f'{player.character_name} says "{message}" eerily without echoes.')
 
     return None
 

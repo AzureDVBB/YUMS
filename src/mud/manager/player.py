@@ -53,7 +53,7 @@ class PlayerManager:
             except asyncio.TimeoutError: # continue after a few seconds to check if player still conencted
                 continue
 
-        self.__world_manager.remove_player_from_world(player) # remove player from the world manager
+        self.__world_manager.remove_player(player) # remove player from the world manager
         del self.active_players[player.character_name] # delete player reference
         print(f"player {player.character_name} disconnected")
 
