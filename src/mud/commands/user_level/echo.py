@@ -5,9 +5,12 @@ Created on Fri Jul 17 19:55:37 2020
 
 @author: AzureDVBB
 """
+#type hinting and IDE
+from mud.manager import Manager
+from mud.database import Database
 
-async def echo(database, manager, player, message):
-    player.send(message)
+async def echo(database: Database, manager: Manager, player_name: str, message: str):
+    await manager.connection_manager.send_message(player_name, message)
 
     return None # to use AWAIT with this and pause command watchdog for players, needs a return
 

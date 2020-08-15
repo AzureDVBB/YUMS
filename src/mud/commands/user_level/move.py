@@ -7,14 +7,18 @@ Created on Thu Jul 23 10:33:28 2020
 
 First draft of the movement script
 """
-# type hint references and IDE help
-from mud.player import Player
+#type hinting and IDE
+from mud.manager import Manager
 from mud.database import Database
 
-async def handle(database: Database, manager, player: Player, message: str):
+async def move(database: Database, manager: Manager, player_name: str, message: str):
+    send_message = ""
+    player = manager.player_manager.get_player_data(player_name)
+
     cmd = message.lower().strip()
     if len(cmd.split(' ')) != 1:
-        player.send(f'unrecognized movement command: {message}')
+        send_message = f'unrecognized movement command: {message}'
+        return None # return early
 
     current_room = await database.world_helper_methods.get_room_document_fields(player.location,
                                                                                 'connections')
@@ -26,36 +30,49 @@ async def handle(database: Database, manager, player: Player, message: str):
         next_room = await database.world_helper_methods.get_room_document(next_room_location)
 
         if next_room is None:
-            player.send(f"Database ERROR: Cannot find room with id {next_room_coords}")
+            send_message = f"Database ERROR: Cannot find room with id {next_room_coords}"
 
         else:
-            for p in manager.world_manager.list_players(player.location):
-                if p == player: # skip the player moving from recieving the move message
-                    continue
-                p.send(f"{player.character_name} walks off towards the '{message}' ... "
-                       f"or atleast what is perceptible as such in the fog.")
+            # send message to players in room that the player is leaving
+            msg = (f"{player_name} walks off towards the '{message}' ... "
+                    f"or atleast what is perceptible as such in the fog."
+                    )
 
-            player.move(next_room_location)
+            players_in_room = manager.player_manager.players_in_location(player.location)
+            players_in_room.remove(player_name)
+            await manager.connection_manager.send_message_to_many(players_in_room, msg)
 
-            for p in manager.world_manager.list_players(player.location):
-                if p == player: # skip the player moving from recieving the move message
-                    continue
-                p.send(f"{player.character_name} walks in from the '{message}' ... "
-                       f"or atleast what is perceptible as such in the fog.")
+            manager.player_manager.move_player(player_name, next_room_location)
 
-            coordinates = next_room['coordinates']
+            # send message to players in room that the player is entering
+            msg = (f"{player_name} walks in from the ever present fog...")
+
+            players_in_room = manager.player_manager.players_in_location(player.location)
+            players_in_room.remove(player_name)
+            await manager.connection_manager.send_message_to_many(players_in_room, msg)
+
+            # send message to the player
+            coordinates = list(next_room['coordinates'].values())
             desc = next_room['description']
-            room_exits = next_room['connections']
+            room_exits = list(next_room['connections'].keys())
+            players_present = manager.player_manager.players_in_location(player.location)
 
-            player.send(f"You walk off towards '{cmd}' .. or atleast what you percieve as such in the fog\r\n"
-                        f"{coordinates}\r\n"
-                        f"{desc}\r\n"
-                        f"Exits: {room_exits}")
+            send_message = (f"You walk off towards '{cmd}' .. or atleast what you percieve as such in the fog\r\n"
+                            f"{coordinates}\r\n"
+                            f"Players: {players_present}\r\n"
+                            f"{desc}\r\n"
+                            f"Exits: {room_exits}"
+                            )
 
     else:
-        player.send('You cannot go that way.')
+        send_message = 'You cannot go that way.'
+
+    if send_message:
+        await manager.connection_manager.send_message(player_name, send_message)
+    else:
+        await manager.connection_manager.send_message(player_name, "Dunno what happened ERROR")
 
     return None # to use AWAIT with this and pause command watchdog for players, needs a return
 
 
-COMMANDS = {'move': handle}
+COMMANDS = {'move': move}

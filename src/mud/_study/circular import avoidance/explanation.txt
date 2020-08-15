@@ -1,0 +1,9 @@
+To help with development and enable tab completion in our IDE's of choice, type hinting is near
+essential tool to inform said IDE about the object and its methods.
+
+To facilitate this even in classes that import eachother, would cause Circular Import Errors.
+
+Avoiding this is a simple case of 'burying' the import inside the class initialization code
+so it does not cause circular import errors.
+
+Simple fix really, but now allows tab completion in IDE which is incredibly useful.

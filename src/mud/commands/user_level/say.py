@@ -6,18 +6,21 @@ Created on Wed Aug  5 10:19:13 2020
 @author: AzureD
 """
 # type hint references and IDE help
-from mud.player import Player
 from mud.database import Database
+from mud.manager import Manager
 
-async def handle(database: Database, manager, player: Player, message: str):
+async def say(database: Database, manager: Manager, player_name: str, message: str):
 
-    log_entry = database.datatypes.LogEntry(player.character_name, message)
+    log_entry = database.datatypes.LogEntry(player_name, message)
+    location = manager.player_manager.get_player_location(player_name)
 
-    await database.world_helper_methods.room_chatlog_add(player.location, 'say', log_entry)
+    await database.world_helper_methods.room_chatlog_add(location, 'say', log_entry)
 
-    async for p in manager.world_manager.list_players(player.location):
-        p.send(f'{player.character_name} says "{message}" eerily without echoes.')
+    await manager.connection_manager.send_message_to_many(manager.player_manager.players_in_location(location),
+                                                          f'{player_name} says "{message}" '
+                                                          f'eerily without echoes.'
+                                                          )
 
     return None
 
-COMMANDS = {'say': handle}
+COMMANDS = {'say': say}

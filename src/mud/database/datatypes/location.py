@@ -19,7 +19,7 @@ class Coordinates:
 
 
     @property
-    def as_dict(self): # converts to a dictionary to store in database
+    def asdict(self): # converts to a dictionary to store in database
         return asdict(self)
 
 
@@ -29,7 +29,7 @@ class Coordinates:
 
 
     def __hash__(self): # define hash as the hash of the dict representation's string
-        return hash(str(self.as_dict))
+        return hash(str(self.asdict))
 
 
     @staticmethod
@@ -46,7 +46,7 @@ class Location:
     coordinates: Coordinates
 
     @property
-    def as_dict(self): # converts to a dictionary to store in database
+    def asdict(self): # converts to a dictionary to store in database
         return asdict(self)
 
 

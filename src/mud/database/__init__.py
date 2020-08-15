@@ -35,6 +35,8 @@ class Database:
     __world_database_name = "test-world" # the database name where all world data is kept
     __tutorial_collection_name = "tutorial" # the name of the collection where the tutorial is stored
 
+    datatypes = datatypes
+
     def __init__(self, database_uri='mongodb://localhost:27017'):
         """
         Initialize the asynchronous client for the database inside the running eventloop.
@@ -42,7 +44,7 @@ class Database:
         this init function must be called from the main server function to ensure
         the correct and running event loop is being passed on.
         """
-        self.datatypes = datatypes
+        self.uri = database_uri
 
         # TODO: If issues arise, bump up the max pool size, each change stream cursor makes 1 connection
         self.client = motor.motor_asyncio.AsyncIOMotorClient(database_uri,

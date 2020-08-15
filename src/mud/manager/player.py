@@ -1,78 +1,110 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug  7 14:14:21 2020
+Created on Mon Aug 10 14:41:02 2020
 
 @author: AzureD
 """
-
 import asyncio
 
-# type hinting and IDE
 from mud.database import Database
-from mud.connection import Connection
-from mud.player import Player
+
+# type hinting and IDE tab completion
+from . import Manager
+from mud.database.datatypes import CharacterData, Location
 
 class PlayerManager:
 
-    def __init__(self, database_ref: Database, interpreter_ref,
-                 world_manager_ref, authentication_manager_ref):
+    def __init__(self, main_manager: Manager, database_uri: str):
+        self.__main_manager = main_manager
+        self.__database = Database(database_uri)
 
-        self.new_connections = []
-        self.active_players = {}
-
-        self.__database = database_ref
-        self.__interpreter = interpreter_ref
-        self.__world_manager = world_manager_ref
-        self.__authentication = authentication_manager_ref
+        self.__players_by_location = {} # player names by world/coordinates
+        self.player_data = {} # player data by player name
 
 
-    async def new_connection(self, connection: Connection):
-        self.new_connections.append(connection)
-        await connection.write_queue.put(f"Welcome to the in-development mud game!"
-                                         f"please enjoy your stay. \r\n"
-                                         f"You can log in by typing: \r\n"
-                                         f"login <name> <password>\r\n"
-                                         f"Or register by typing:\r\n"
-                                         f"register <name> <password>\r\n"
-                                         f"Note that names should be lower case and cannot contain"
-                                         f"spaces, passwords cannot contain spaces.")
-
-        character_document = await self.__authentication.authenticate_connection(connection)
-        if character_document: # document is not none
-            self.add_player(connection, character_document)
-
-        return None # async spec
+    def __remove_location_(self, location: Location):
+        world_name, coordinates = location.world_name, location.coordinates
+        # remove location if it exists and is empty now
+        if not self.__players_by_location[world_name][coordinates]:
+            del self.__players_by_location[world_name][coordinates]
+            if not self.__players_by_location[world_name]:
+                del self.__players_by_location[world_name]
 
 
-    async def __watch_commands(self, player: Player):
-        while player.has_connections: # while there are still connections on player
-            try: # wait for and interpret aggregate commands
-                command = await asyncio.wait_for(player.command_queue.get(), 30)
-                await self.__interpreter.process(player, command)
-            except asyncio.TimeoutError: # continue after a few seconds to check if player still conencted
-                continue
-
-        self.__world_manager.remove_player(player) # remove player from the world manager
-        del self.active_players[player.character_name] # delete player reference
-        print(f"player {player.character_name} disconnected")
-
-        return None # async spec, has to have a return in there
+    def __create_location_(self, location: Location):
+        world_name, coordinates = location.world_name, location.coordinates
+        if not (world_name in self.__players_by_location):
+            self.__players_by_location[world_name] = {}
+        if not (coordinates in self.__players_by_location[world_name]):
+            self.__players_by_location[world_name][coordinates] = []
 
 
-    def add_player(self, connection: Connection, character_document):
-        name = character_document['name']
-
-        if name in self.active_players:
-            self.active_players[name].add_connection(connection)
+    async def add_player(self, player_name: str):
+        if player_name in self.player_data:
+            print(f"PlayerManager.add_player ERROR: '{player_name}' allready "
+                  f"added to the player_data dictionary, ignoring"
+                  )
 
         else:
-            # create and add players to the master player list, passing movement logic to them
-            self.active_players[name] = Player(self.__database, connection, character_document,
-                                               self.__world_manager)
+            player_data = await self.__database.character_helper_methods.get_player_data(player_name)
+            self.player_data[player_name] = player_data
 
-            # add them to the world manager
-            self.__world_manager.add_player(self.active_players[name])
+            world_name, coordinates = player_data.location.world_name, player_data.location.coordinates
+            self.__create_location_(player_data.location)
+            self.__players_by_location[world_name][coordinates].append(player_name)
 
-            #begin watching for aggregate commands while they are connected
-            asyncio.ensure_future(self.__watch_commands(self.active_players[name]))
+
+    def remove_player(self, player_name: str):
+        if player_name in self.player_data:
+            # delete player from both dictionaries, keep location for later
+            location = self.player_data[player_name].location
+            world_name, coordinates = location.world_name, location.coordinates
+
+            del self.player_data[player_name]
+
+            self.__players_by_location[world_name][coordinates].remove(player_name)
+            self.__remove_location_(location)
+
+        else:
+            print(f"PlayerManager.remove_player ERROR: '{player_name}' is not present in player_data"
+                  f" dictionary, ignoring"
+                  )
+
+
+    def get_player_data(self, player_name: str):
+        return self.player_data[player_name]
+
+
+    def get_player_location(self, player_name: str):
+        return self.player_data[player_name].location
+
+
+    def players_in_location(self, location: Location):
+        if location.world_name in self.__players_by_location:
+            if location.coordinates in self.__players_by_location[location.world_name]:
+
+                return self.__players_by_location[location.world_name][location.coordinates].copy()
+
+        return []
+
+
+    def is_online(self, player_name: str):
+        return player_name in self.player_data
+
+
+    def move_player(self, player_name, location: Location):
+        if not (player_name in self.player_data):
+            print(f"PlayerManager.move_player ERROR: '{player_name}' is not present in player_data"
+                  f" dictionary, ignoring"
+                  )
+        else:
+            # remove player from present location list
+            old_location = self.player_data[player_name].location
+            self.__players_by_location[old_location.world_name][old_location.coordinates].remove(player_name)
+            self.__remove_location_(old_location)
+
+            # update player location and add them to the new location list
+            self.player_data[player_name].location = location
+            self.__create_location_(location)
+            self.__players_by_location[location.world_name][location.coordinates].append(player_name)

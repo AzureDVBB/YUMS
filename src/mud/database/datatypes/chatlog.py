@@ -16,5 +16,5 @@ class LogEntry:
     message: str
 
     @property
-    def as_dict(self): # converts to a dictionary to store in database
+    def asdict(self): # converts to a dictionary to store in database
         return asdict(self)

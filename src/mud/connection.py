@@ -53,6 +53,8 @@ class Connection:
 
         self.reader_coroutine_closed = True # teardown logic
 
+        return None # needed for async
+
 
     async def __write_output(self, timeout: int=20):
         assert timeout >= 10, "timeout should not be less then 10s"
@@ -72,3 +74,5 @@ class Connection:
         self.writer.close()
         self.writer_coroutine_closed = True
         self.is_alive = False
+
+        return None # needed for async

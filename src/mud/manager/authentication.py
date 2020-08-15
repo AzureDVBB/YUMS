@@ -8,27 +8,29 @@ Created on Fri Aug  7 09:56:53 2020
 
 from mud.password_hasher import PasswordHasher
 from mud import text
+from mud.database import Database
 
 # type hints and IDE help
 from mud.connection import Connection
+from . import Manager
 
-class Authentication:
+class AuthenticationManager:
 
-    def __init__(self, database):
+    def __init__(self, main_manager: Manager, database_uri: str):
 
-        self.database = database
-        self.password_hasher = PasswordHasher()
+        self.__main_manager = main_manager
+        self.__database = Database(database_uri)
+        self.__password_hasher = PasswordHasher()
 
 
-    async def login(self, name: str, password: str): # pass in initialized database class
-        if await self.database.character_helper_methods.exists(name):
-            credentials = await self.database.character_helper_methods.get_credentials(name)
+    async def __login(self, name: str, password: str): # pass in initialized database class
+        if await self.__database.character_helper_methods.exists(name):
+            credentials = await self.__database.character_helper_methods.get_credentials(name)
 
-            valid = await self.password_hasher.validate_credentials_with_password(password, credentials)
+            valid = await self.__password_hasher.validate_credentials_with_password(password, credentials)
 
             if valid:
-                character_data = await self.database.character_helper_methods.get_document(name)
-                return (character_data, f"Login succeeded! Welcome to the game {character_data['name']}")
+                return (True, f"Login succeeded! Welcome to the game {name}")
 
             else:
                 return (False, f"Login error: password is invalid")
@@ -37,12 +39,12 @@ class Authentication:
             return (False, f"Login error: there is no character with the name '{name}'")
 
 
-    async def register(self, name: str, password: str):
-        if not await self.database.character_helper_methods.exists(name):
-            credentials = await self.password_hasher.generate_credentials_with_password(password)
+    async def __register(self, name: str, password: str):
+        if not await self.__database.character_helper_methods.exists(name):
+            credentials = await self.__password_hasher.generate_credentials_with_password(password)
 
-            return await self.database.character_helper_methods.create_new(name, credentials,
-                                                                           extra_information=None) # TODO: add extra information (dict)
+            return await self.__database.character_helper_methods.create_new(name, credentials,
+                                                                             extra_information=None) # TODO: add extra information (dict)
 
         else:
             return (False, f"Registraton error: A character by the name {name} allready exists.\r\n"
@@ -64,10 +66,10 @@ class Authentication:
 
             command, name, password = segmented_command
             if command == 'login':
-                result, message = await self.login(name, password)
+                result, message = await self.__login(name, password)
                 await connection.write_queue.put(message)
                 if not (result is False):
-                    return result # returns the fetched character data from database
+                    await self.__main_manager.connection_manager.add_connection(connection, name)
                     break
                 else:
                     attempts += 1
@@ -82,7 +84,7 @@ class Authentication:
 
                 answer = await connection.read_queue.get()
                 if answer.strip().lower() in ('yes', 'y'):
-                    result, message = await self.register(name, password)
+                    result, message = await self.__register(name, password)
                 else:
                     result = False
                     message = "Aborting..."
@@ -95,5 +97,7 @@ class Authentication:
                     attempts += 1
                     continue
 
-        connection.is_alive = False # disconnect player, that failed to log in
+        if attempts >= max_attempts:
+            connection.is_alive = False # disconnect player, that failed to log in
+
         return None

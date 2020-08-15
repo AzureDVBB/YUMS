@@ -7,7 +7,7 @@ Created on Sat Aug  1 14:36:34 2020
 
 Database operations on the user database / character collection.
 """
-from .datatypes import Location, Coordinates
+from .datatypes import Location, Coordinates, CharacterData, CharacterDocument
 
 class Character:
 
@@ -34,6 +34,13 @@ class Character:
                                               )
 
 
+    async def get_player_data(self, name: str):
+        ret = await self.get_document_fields(name, ['location'])
+
+        location = Location.from_dict(ret['location'])
+        return CharacterData(name, location)
+
+
     async def get_credentials(self, name: str):
         document = await self.get_document_fields(name, 'credentials')
         return document['credentials']
@@ -52,7 +59,7 @@ class Character:
             await self.collection.insert_one({"name": name,
                                               "location": Location("tutorial",
                                                                    Coordinates(0,0,0)
-                                                                   ).as_dict,
+                                                                   ).asdict,
                                               "credentials": credentials
                                               }
                                              )

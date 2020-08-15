@@ -16,7 +16,7 @@ mng = Manager()
 
 async def handle_connection(reader, writer):
     conn = Connection(reader, writer)
-    await mng.player_manager.new_connection(conn)
+    await mng.authentication_manager.authenticate_connection(conn)
     print(f"Recieved new connection from {conn.address}")
     return None # conform with async def spec
 

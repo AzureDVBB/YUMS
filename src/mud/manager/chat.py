@@ -8,33 +8,13 @@ Created on Thu Aug  6 21:18:10 2020
 from mud.database import Database
 from mud.player import Player
 
+#type hinting and IDE
+from . import Manager
+
 class ChatManager:
 
-    def __init__(self, database: Database):
+    def __init__(self, main_manager: Manager, database_uri: str):
 
-        self.database = database
+        self.__database = Database(database_uri)
+        self.__main_manager = main_manager
         self.global_chats = {}
-
-
-    def add_player_to_channel(self, player: Player, channel_name: str):
-
-        if not channel_name in self.global_chats: # create list at key if key did not exist yet
-            self.global_chats[channel_name] = []
-
-        self.global_chats[channel_name].append(player)
-
-
-    def remove_player_from_channel(self, player: Player, channel_name: str):
-
-        self.global_chats[channel_name].remove(player)
-
-        if not self.global_chats[channel_name]: # delete unused channels
-            del self.global_chats[channel_name]
-
-
-    def send_message_to_channel(self, channel_name: str, message: str):
-
-        for player in self.global_chats[channel_name]:
-            player.send(message)
-
-        return None # needed for async def
