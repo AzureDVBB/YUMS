@@ -4,12 +4,25 @@
 Created on Wed Aug  5 10:19:13 2020
 
 @author: AzureD
+
+say Command, sends a message to all players at the current location, and records it to the
+chatlog of the location.
 """
+
 # type hint references and IDE help
 from mud.database import Database
 from mud.manager import Manager
 
 async def say(database: Database, manager: Manager, player_name: str, message: str):
+    """
+Send a message to all players present in the current location.
+
+It also records the message in the chatlog of the current location.
+
+Usage: say <message>
+
+Example: say Hello World!
+    """
 
     log_entry = database.datatypes.LogEntry(player_name, message)
     location = manager.player_manager.get_player_location(player_name)
@@ -22,5 +35,6 @@ async def say(database: Database, manager: Manager, player_name: str, message: s
                                                           )
 
     return None
+
 
 COMMANDS = {'say': say}

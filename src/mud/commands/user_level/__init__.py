@@ -1,3 +1,9 @@
+"""
+Reloadable package holding commands available to each user.
+
+The list '__all__' needs to be updated with the names of each module that needs to be loaded in.
+"""
+
 import sys as __sys
 import importlib as __importlib
 

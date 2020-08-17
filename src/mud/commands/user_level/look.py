@@ -4,18 +4,29 @@
 Created on Thu Jul 23 16:14:43 2020
 
 @author: AzureD
+
+Look command, returns the room description, exits and players present.
 """
 #type hinting and IDE
 from mud.manager import Manager
 from mud.database import Database
 
 async def look(database: Database, manager: Manager, player_name: str, message: str):
+    """
+Retrieve current location coordinates, list of present players, description and exits.
+
+You look... at your current... location... what did you expect?
+
+Usage: look
+
+Example: look
+    """
+
     player_location = manager.player_manager.player_data[player_name].location
 
     send_message = ''
 
     if message == '':
-        # TODO: make world, name also a player, thingy
         room = await database.world_helper_methods.get_room_document(player_location)
 
         if room is None:

@@ -5,13 +5,24 @@ Created on Thu Jul 23 10:33:28 2020
 
 @author: AzureD
 
-First draft of the movement script
+Move command, moves the player around the connected world and messages people in the locations
+they leave/enter.
 """
 #type hinting and IDE
 from mud.manager import Manager
 from mud.database import Database
 
 async def move(database: Database, manager: Manager, player_name: str, message: str):
+    """
+Moves you, the player, to another location connected to your current one through an exit.
+
+It also will notify the players in the location you leave/enter that you did so.
+
+Usage: move <exit name>
+
+Example: move n
+    """
+
     send_message = ""
     player = manager.player_manager.get_player_data(player_name)
 
