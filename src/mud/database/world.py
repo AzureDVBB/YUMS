@@ -4,6 +4,10 @@
 Created on Sat Aug  1 16:57:35 2020
 
 @author: AzureD
+
+A collection of common database operations abstracted away.
+
+This one is implements methods to interact and work with the Worlds and locations inside of them.
 """
 
 import asyncio
@@ -32,7 +36,7 @@ class World:
         return document if document else None
 
 
-    async def get_room_document(self, location: Location):
+    async def get_room_document(self, location: Location) -> dict:
         world_name, coordinates = location.world_name, location.coordinates.asdict
 
         document = await self.database[world_name].find_one({'coordinates': coordinates},

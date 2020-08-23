@@ -10,6 +10,9 @@ from dataclasses import dataclass, asdict
 
 @dataclass
 class Coordinates:
+    """
+    The uh... X Y Z coordinates... Nothing special. Mostly just more convenient then a dictionary.
+    """
 
     __slots__ = ['x', 'y', 'z']
 
@@ -19,17 +22,18 @@ class Coordinates:
 
 
     @property
-    def asdict(self): # converts to a dictionary to store in database
+    def asdict(self) -> dict: # converts to a dictionary to store in database
         return asdict(self)
 
 
-    ### make hashable to enable using it as dictionary keys
+    ### make hashable to enable using it as dictionary keys #######################################
     def __eq__(self, other): # define equality checking as hash needs it
         return self.x == other.x and self.y == other.y and self.z == other.z
 
 
     def __hash__(self): # define hash as the hash of the dict representation's string
         return hash(str(self.asdict))
+    ###############################################################################################
 
 
     @staticmethod
@@ -39,6 +43,10 @@ class Coordinates:
 
 @dataclass
 class Location:
+    """
+    Location data that is stored on the database, including the name of the world the location is in,
+    and its X Y Z coordinates.
+    """
 
     __slots__ = ['world_name', 'coordinates'] # limit variable names to save memory
 
@@ -46,7 +54,7 @@ class Location:
     coordinates: Coordinates
 
     @property
-    def asdict(self): # converts to a dictionary to store in database
+    def asdict(self) -> dict: # converts to a dictionary to store in database
         return asdict(self)
 
 

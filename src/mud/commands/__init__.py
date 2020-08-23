@@ -47,7 +47,7 @@ class Interpreter: # interpreter class that holds reference to player/database
 
     def __init__(self, manager: Manager, database_uri: str): # default values so the examples can work
         """
-        Create database connection and save reference to the manager.
+        Create database connection and save reference to the manager object.
         """
         self.database = Database(database_uri)
         self.manager = manager

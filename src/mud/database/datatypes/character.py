@@ -13,16 +13,20 @@ from .location import Location
 
 @dataclass
 class CharacterDocument:
+    """
+    Document holding all information of a character that's stored in the database.
+    """
 
     name: str
     credentials: dict # TODO: create datatype for credentials
     location: Location
 
     @property
-    def asdict(self): # converts to a dictionary to store in database
+    def asdict(self) -> dict: # converts to a dictionary to store in database
         return asdict(self)
 
-    def from_dict(self, char_doc: dict):
+    @staticmethod
+    def from_dict(char_doc: dict):
         return CharacterDocument(char_doc['name'],
                                  char_doc['credentials'],
                                  Location.from_dict(char_doc['location'])
@@ -31,6 +35,9 @@ class CharacterDocument:
 
 @dataclass
 class CharacterData:
+    """
+    Class holding all information of a character loaded into memory and used by the MUD server.
+    """
 
     name: str
     location: Location

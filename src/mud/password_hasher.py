@@ -12,6 +12,9 @@ from concurrent.futures import ProcessPoolExecutor
 from hashlib import scrypt
 from secrets import token_bytes
 
+# type hinting and IDE stuff
+from mud.database.datatypes import Credentials, ScryptArguments
+
 def blocking_hash_password_with_salt(args: dict):
         # unpack the arguments
         password = args['password']
@@ -49,29 +52,34 @@ class PasswordHasher:
                                                  arguments
                                                  )
 
-    async def generate_credentials_with_password(self, password: str):
+    async def generate_credentials_with_password(self, password: str) -> Credentials:
+        # # OLD STYLE / REMOVE SOON IF WORKS
+        # scrypt_arg_dict = {'password': password,
+        #                     'salt': self.generate_salt(),
+        #                     'scrypt arguments': {'n': 32768, 'r': 11, 'p': 1,
+        #                                         'maxmem': 80000000,
+        #                                         'dklen': 128
+        #                                         }
+        #                     }
+        salt = self.generate_salt()
+        hashing_args = ScryptArguments().asdict
+        hashing_args.update({'password': password, 'salt': salt})
+        pwd_hash = await self.__hash_password_with_arguments(hashing_args)
+        # return {'password hash': pwd_hash,
+        #         'salt': scrypt_arg_dict['salt'],
+        #         'scrypt arguments': scrypt_arg_dict['scrypt arguments']
+        #         }
+        return Credentials(pwd_hash, salt, ScryptArguments())
+
+
+    async def validate_credentials_with_password(self, password: str, credentials: Credentials) -> bool:
         scrypt_arg_dict = {'password': password,
-                           'salt': self.generate_salt(),
-                           'scrypt arguments': {'n': 32768, 'r': 11, 'p': 1,
-                                                'maxmem': 80000000,
-                                                'dklen': 128
-                                                }
+                           'salt': credentials.salt,
+                           'scrypt arguments': credentials.scrypt_arguments.asdict
                            }
         pwd_hash = await self.__hash_password_with_arguments(scrypt_arg_dict)
-        return {'password hash': pwd_hash,
-                'salt': scrypt_arg_dict['salt'],
-                'scrypt arguments': scrypt_arg_dict['scrypt arguments']
-                }
 
-
-    async def validate_credentials_with_password(self, password: str, credentials: dict):
-        scrypt_arg_dict = {'password': password,
-                           'salt': credentials['salt'],
-                           'scryt arguments': credentials['scrypt arguments']
-                           }
-        pwd_hash = await self.__hash_password_with_arguments(scrypt_arg_dict)
-
-        if (pwd_hash == credentials['password hash']):
+        if (pwd_hash == credentials.password_hash):
             return True
         else:
             return False
