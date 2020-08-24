@@ -1,8 +1,8 @@
-### The Many Managers managing the MUD
+# The Many Managers managing the MUD
 
 If it needs to store data, if it needs to provide interaction or if it needs to store state and provide complex mechanics? You have come to the right place!
 
-##### So what is it?
+#### So what is it?
 
 It's a bunch of regular python classes implementing any and all complex systems that require, for instance an internal state that needs to be kept up-to date and provide ways of manipulating it. (see `player.py` for an excellent example on how the `move` needs to update internal state.)
 
@@ -10,7 +10,7 @@ It is also a way to neatly separate out parts of the MUD code, while still allow
 
 Won't this cause some circular import nonsense issue? No thanks to only importing stuff during the special initilaization method inside the main `Manager`.
 
-##### But why so seperated and reference passed?
+#### But why so seperated and reference passed?
 
 In short, read about proxy objects at <https://docs.python.org/3/library/multiprocessing.html#proxy-objects> which will be rather convenient once certain managers and/or functions outgrow a single python process. (*cough* multiprocessing *cough*) 
 
