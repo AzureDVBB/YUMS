@@ -4,7 +4,11 @@
 Created on Mon Aug 10 14:41:02 2020
 
 @author: AzureD
+
+Managing players online, the locations where players are, holding the player data of connected players
+and more! Everything that has to specifically do with players, this shall manage it.
 """
+
 import asyncio
 
 from mud.database import Database

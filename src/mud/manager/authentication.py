@@ -4,6 +4,10 @@
 Created on Fri Aug  7 09:56:53 2020
 
 @author: AzureD
+
+Managing the Authentication of players.
+
+That is, login and registration of player connections.
 """
 
 from mud.password_hasher import PasswordHasher

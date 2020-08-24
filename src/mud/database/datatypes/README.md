@@ -18,7 +18,7 @@ Don't like the functionality/datatypes? Change them!
 
 1. Create a new python file
 1. Define the new datatypes as classes/dataclasses
-1. Add the file name (without extension) to the `__all__` list inside `__init__.py`
+1. Add the import statement to the `__init__.py` using relative import. (`from .mymodule import MyDataclass`)
 1. (bonus) add `asdict` property and `from_dict` method akin to other datatypes
 
 Done! It is now usable after loading/re-loading the datatypes module.

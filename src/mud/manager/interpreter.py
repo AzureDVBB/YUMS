@@ -4,6 +4,10 @@
 Created on Thu Aug 13 10:22:54 2020
 
 @author: AzureD
+
+Instantiation, reference holding to the Interpreter class.
+
+TODO: Make many managers run in processes for load balancing computationally heavy commands.
 """
 
 from mud.commands import Interpreter

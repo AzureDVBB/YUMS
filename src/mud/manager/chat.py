@@ -4,6 +4,10 @@
 Created on Thu Aug  6 21:18:10 2020
 
 @author: AzureD
+
+Managing player lists on chat channels.
+
+WIP
 """
 from mud.database import Database
 from mud.player import Player

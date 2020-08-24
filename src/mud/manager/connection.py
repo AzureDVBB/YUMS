@@ -4,6 +4,11 @@
 Created on Mon Aug 10 17:51:01 2020
 
 @author: AzureD
+
+The management of raw connections, associating them with player names.
+
+Also manages the sending/recieving of messages from all connections associated with players
+and calls the command interpreter on recieved messages.
 """
 
 import asyncio
