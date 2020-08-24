@@ -4,6 +4,13 @@
 Created on Tue Jul 14 08:45:42 2020
 
 @author: AzureDVBB
+
+Main entry point of the MUD, simple yet deep.
+
+The main workhorse is the 'asyncio.start_server' which needs a callback to handle each new connection
+which is done in 'handle_connection' (it only makes a Connection object and tries to authenticate it)
+
+It also supplies a 'run' function to start up the MUD.
 """
 
 import asyncio

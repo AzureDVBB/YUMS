@@ -4,6 +4,15 @@
 Created on Tue Jul 14 08:45:59 2020
 
 @author: AzureDVBB
+
+The (slightly less) RAW client connection object.
+
+This implements several helpful abstractions like async input/output queues to further decouple
+MUD logic from slow internet traffic, which are then fed into the read/write streams through tasks.
+
+It also holds some information about itself like the ip 'address' of client and 'is_alive', the latter
+which is set to False if the client disconnected for any reason. However a trick is to set this
+manually to False if there is a need to force-disconnect a client.
 """
 
 import asyncio
