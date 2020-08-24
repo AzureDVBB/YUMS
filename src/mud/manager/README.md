@@ -25,4 +25,5 @@ As I hope this would be a much simpler change with this level or separation/refe
 1. Change `Manager.initialize_inside_running_loop` method inside `__init__.py` to import the newly created manager class and then instantiate it, grabbing a reference as an attribute (just look in `__init__.py` to see this in action)
 
 Note: This is how you will then access the new manager, so chose the name wisely.
+
 Also note: Complete python restart needed to see changes.
