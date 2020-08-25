@@ -10,13 +10,13 @@ Managing the Authentication of players.
 That is, login and registration of player connections.
 """
 
-from mud.password_hasher import PasswordHasher
+from .password_hasher import PasswordHasher
 from mud import text
 from mud.database import Database
 
 # type hints and IDE help
 from mud.connection import Connection
-from . import Manager
+from mud.manager import Manager
 
 class AuthenticationManager:
 
