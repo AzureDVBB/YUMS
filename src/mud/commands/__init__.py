@@ -86,6 +86,13 @@ class Interpreter: # interpreter class that holds reference to player/database
             else:
                 await user_level.COMMANDS[command](self.database, self.manager, player_name, message)
 
+        # list all available commands
+        elif command == "commands":
+            await self.manager.connection_manager.send_message(player_name,
+                                                               "available commands: " +
+                                                               str(list(user_level.COMMANDS.keys()))
+                                                               )
+
         else:
             await self.manager.connection_manager.send_message(player_name, f"Command not understood: {command}")
 

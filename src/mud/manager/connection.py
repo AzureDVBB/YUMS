@@ -45,6 +45,15 @@ class ConnectionManager:
         # replace old read queue with a new shared one, aggregating user input
         connection.read_queue = self.__connected_players[character_name]['read_queue']
 
+        # send info message to player
+        await self.send_message(character_name,
+                                f"Welcome {character_name} to YUMS!\r\n\r\n"
+                                f"To see available commands type: commands\r\n"
+                                f"You can find help for all commands by typing: <command> #help\r\n"
+                                )
+        # push a look command to get the room details
+        await self.__connected_players[character_name]['read_queue'].put("look")
+
         return None # needed for async def
 
 

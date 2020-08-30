@@ -56,6 +56,16 @@ class AuthenticationManager:
 
 
     async def authenticate_connection(self, connection: Connection, max_attempts = 5):
+        # welcome message
+        await connection.write_queue.put(f"Welcome to YUMS mud server! "
+                                         f"Enjoy your stay. \r\n\r\n"
+                                         f"You can log in by typing: \r\n"
+                                         f"login <name> <password>\r\n\r\n"
+                                         f"Or register by typing:\r\n"
+                                         f"register <name> <password>\r\n\r\n"
+                                         f"Note that names should be lower case and cannot contain "
+                                         f"spaces, passwords cannot contain spaces.")
+
         attempts = 0
 
         while attempts < max_attempts:
