@@ -50,7 +50,7 @@ Here are convenient "i don't know what I'm doing but I need it" steps to get you
 
 To get MongoDB running in docker (once you have it installed) first run the command `docker pull mongo` this will pull the latest docker image of MongoDB.
 
-Next run `docker run --name insert_name_here -p 27017:27017 -d mongo` which will create a container with the name `insert_name_here` (please use something sensible and without spaces) so we can refer to it by name. The argument (is spooky dangerous in production, but playing around it's fine) `-p 27017:27017` which let's us access the database from outside the container. `-d mongo` specifies the container we use as the official Mongo DB container.
+Next run `docker run --name insert_name_here -p 27017:27017 -d mongo` which will create a container with the name `insert_name_here` (please use something sensible and without spaces) so we can refer to it by name. The argument (is spooky dangerous in production, but playing around it's fine) `-p 27017:27017` which lets us access the database from outside the container. `-d mongo` specifies the container we use as the official Mongo DB container.
 
 Now we (hopefully) have a running database. We can stop it with `docker container stop insert_name_here`. And start it back up with `docker container start insert_name_here`. Yes we do want to start it back up as we need the data inside to be persistent yeah?
 
