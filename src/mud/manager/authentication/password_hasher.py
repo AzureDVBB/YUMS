@@ -8,7 +8,7 @@ Created on Sat Jul 25 11:56:07 2020
 Async ready password hasher, due to it being blocking it runs in a seperate process pool.
 """
 import asyncio
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from hashlib import scrypt
 from secrets import token_bytes
 
@@ -39,7 +39,11 @@ class PasswordHasher:
 
     def __init__(self):
         self.__loop = asyncio.get_running_loop() # the currently running eventloop
-        self.__executor = ProcessPoolExecutor(max_workers=1) # worker process pool
+
+        # WARNING: Process Pool is wonky on windows but fine on linux, using threadpool as workaround
+
+        #self.__executor = ProcessPoolExecutor(max_workers=1) # worker process pool
+        self.__executor = ThreadPoolExecutor(max_workers=1) # worker process pool
 
     @staticmethod
     def generate_salt(length_bytes = 128) -> bytes:
@@ -53,22 +57,11 @@ class PasswordHasher:
                                                  )
 
     async def generate_credentials_with_password(self, password: str) -> Credentials:
-        # # OLD STYLE / REMOVE SOON IF WORKS
-        # scrypt_arg_dict = {'password': password,
-        #                     'salt': self.generate_salt(),
-        #                     'scrypt arguments': {'n': 32768, 'r': 11, 'p': 1,
-        #                                         'maxmem': 80000000,
-        #                                         'dklen': 128
-        #                                         }
-        #                     }
         salt = self.generate_salt()
         hashing_args = ScryptArguments().asdict
         hashing_args.update({'password': password, 'salt': salt})
         pwd_hash = await self.__hash_password_with_arguments(hashing_args)
-        # return {'password hash': pwd_hash,
-        #         'salt': scrypt_arg_dict['salt'],
-        #         'scrypt arguments': scrypt_arg_dict['scrypt arguments']
-        #         }
+
         return Credentials(pwd_hash, salt, ScryptArguments())
 
 

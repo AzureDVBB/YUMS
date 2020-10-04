@@ -33,7 +33,6 @@ async def main():
 
     server = await asyncio.start_server(handle_connection, '127.0.0.1', 8888,
                                         family=socket.AF_INET, flags=socket.AI_PASSIVE,
-                                        reuse_address = 1, reuse_port = 1,
                                         ssl=None, ssl_handshake_timeout=None)
 
     addr = server.sockets[0].getsockname()

@@ -12,7 +12,9 @@ All connections will start here and unless they manage to verify themselves will
 
 The authentication is split between two files.
 
-**`password_hasher.py`** houses the logic of hashing passwords, yes. It is running a seperate process to do the actual hashing with some wrapper to allow it to be ran in the main async process. The reason why is this is a computationally expensive function and would block everything else on the server while it works, hence why the seperate process and wrapper.
+**`password_hasher.py`** houses the logic of hashing passwords, yes. It is running a seperate process to do the actual hashing with some wrapper to allow it to be ran in the main async process. The reason why is this is a computationally expensive function and would block everything else on the server while it works, hence why the seperate thread* and wrapper.
+
+*ThreadPool is used because windows has issues with ProcessPool as of `Python 3.8.5`, Linux has no such issues and so process pool should be used.
 
 **`authentication.py`** holds the main manager class that imports and uses the password_hasher. It holds logic for logging a player character in as well as registration of a new one. It also features force disconnection if the connection is unable to authenticate itself.
 
