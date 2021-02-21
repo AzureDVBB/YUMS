@@ -6,6 +6,8 @@ This is still heavily **In Development** and as such things can and will change 
 As such, use this as the foundation of your own projects **at your own risk**.
 (Even if this is just a bare-bones implementation that the user is expected to build, hack and change to their needs.)
 
+__Current version__: (yums-0.1)
+
 ## what 'exactly' is it?
 
 A MUD (or Multi User Dungeon) is an online (usually) text-based game. Think of them like the first MMO's out there, before fancy graphics were a thing. Got a terminal and an internet connection? That's all you needed. Want to learn about that history? Head on over to <https://en.wikipedia.org/wiki/MUD>, yes really.
