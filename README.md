@@ -1,10 +1,14 @@
 # YUMS
 Yet Another MUD Server (now with a typo!)
 
-## CAUTION
-This is still heavily **In Development** and as such things can and will change drastically.
-As such, use this as the foundation of your own projects **at your own risk**.
-(Even if this is just a bare-bones implementation that the user is expected to build, hack and change to their needs.)
+## NOTE: in-development branch (dev-yums-0.2)
+This is the in-development branch to separate it from the (main) 'stable' branch. Goals for this version are:
+
+* exploring the right database to use
+* data schema and versioning (for future proofing)
+* schema validation
+* schema migrations
+* abstraction layer for database operations under `src/mud/database`
 
 ## what 'exactly' is it?
 
