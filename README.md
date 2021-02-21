@@ -1,10 +1,9 @@
 # YUMS
 Yet Another MUD Server (now with a typo!)
 
-## CAUTION
-This is still heavily **In Development** and as such things can and will change drastically.
-As such, use this as the foundation of your own projects **at your own risk**.
-(Even if this is just a bare-bones implementation that the user is expected to build, hack and change to their needs.)
+## NOTE: old archival version 'yums-0.1'
+This is the original version I developed from the ground up. I leave it in this branch for archival purposes as it has been like this during my 6 month break from development.
+If anyone has used it to create something wonderful, they should have an easier time to find this version rather than having to dig through commit histories.
 
 ## what 'exactly' is it?
 
