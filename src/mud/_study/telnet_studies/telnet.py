@@ -95,7 +95,7 @@ class Code:
 
     DONT = 254
     """
-    Indicates the demand that the other party stop performing, or confirmation that you
+    Indicates the demand that the other party stop performing, or confirmation that you are no
     longer expecting the other party to perform, the indicated option.
     """
 

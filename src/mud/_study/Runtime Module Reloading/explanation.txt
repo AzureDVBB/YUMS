@@ -6,7 +6,7 @@ it painlessly. It also updates the references pointing to defined functions shou
 put in variables.
 
 However for an entire python package things are harder. using the 'importlib.reload' on a package
-will run the package's '__init.py' script, however 'import' statements re-run will do nothing if
+will run the package's '__init__.py' script, however 'import' statements re-run will do nothing if
 modules were allready loaded.
 
 To solve this issue the package's '__init__.py' has to include an if..else block that
