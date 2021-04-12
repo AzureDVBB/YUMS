@@ -15,6 +15,22 @@ from traitlets import HasTraits, TraitType, TraitError
 from traitlets import Dict, Int, Float, Bool, Unicode, Enum
 from traitlets import validate, observe
 
+
+# custom trait type that can be shared between many Documents
+class Ascii(TraitType):
+    """A trait for ASCII strings."""
+
+    info_text = "ASCII only string"
+
+    def validate(self, obj, value):
+        if isinstance(value, str):
+            try:
+                value.encode('ascii')
+                return value
+            except UnicodeEncodeError:
+                self.error(obj, value)
+        self.error(obj, value)
+
 # Disk persistance base class (with traits)
 class PersistentDocument(HasTraits):
     """
@@ -39,7 +55,7 @@ class PersistentDocument(HasTraits):
     def __load_from_persistent_store(self):
         # load dictionary from json file
         recalled = None
-        filepath = os.path.join(os.getcwd(), 'stored_data', f'{self.__filename}.json')
+        filepath = os.path.join(os.getcwd(), 'stored_data', f'{self._filename}.json')
         with open(filepath, 'r') as f:
             read = f.read()
             recalled = json.loads(read)
@@ -69,7 +85,7 @@ class PersistentDocument(HasTraits):
 
             # object requires refresh (caching) from a persistent volume
             if time.time() > self.__next_read_presistent_volume:
-                self.__reload_from_persistent_store()
+                self.__load_from_persistent_store()
 
             # return the selected trait
             return self.trait_values()[key]
@@ -89,22 +105,6 @@ class PersistentDocument(HasTraits):
             raise Exception(f"Cannot set trait '{key}' : it is set to read-only.")
 
         raise Exception(f"No trait '{key}' found on object '{self}'")
-
-
-# custom trait type that can be shared between many Documents
-class Ascii(TraitType):
-    """A trait for ASCII strings."""
-
-    info_text = "ASCII only string"
-
-    def validate(self, obj, value):
-        if isinstance(value, str):
-            try:
-                value.encode('ascii')
-                return value
-            except UnicodeEncodeError:
-                self.error(obj, value)
-        self.error(obj, value)
 
 
 # document class inheriting PersistentDocument for disk persistance and implements example attributes
