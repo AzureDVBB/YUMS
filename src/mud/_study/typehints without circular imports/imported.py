@@ -5,9 +5,10 @@ Created on Tue Aug 11 18:05:28 2020
 
 @author: AzureD
 """
+from typing import TYPE_CHECKING
 
-from importer import DummyMain
-
+if TYPE_CHECKING:
+    from importer import DummyMain
 
 class Dummy:
 

@@ -5,9 +5,13 @@ Created on Tue Aug 11 18:05:14 2020
 
 @author: AzureD
 """
+from imported import Dummy
+
 
 class DummyMain:
 
     def __init__(self):
-        from imported import Dummy
         self.dummy = Dummy(self)
+
+    def dum(self):
+        print("Duummm")
