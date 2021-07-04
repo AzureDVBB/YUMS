@@ -1,0 +1,19 @@
+Automatic reloading of both modules and packages is a useful prospect for a MUD, this
+way it does not need to shutdown just for a slight change in it's command interpreter.
+
+This is relatively easily accomplished for single modules as the 'importlib.reload' does
+it painlessly. It also updates the references pointing to defined functions should they be
+put in variables.
+
+However for an entire python package things are harder. using the 'importlib.reload' on a package
+will run the package's '__init__.py' script, however 'import' statements re-run will do nothing if
+modules were allready loaded.
+
+To solve this issue the package's '__init__.py' has to include an if..else block that
+checks the 'dir()' namelist for each imported module name, if not in the list of imported modules
+then 'import' it, else 'importlib.reload' it.
+
+
+IMPORTANT WARNING:
+
+This only reloads the definitions, and not the instantiated classes.

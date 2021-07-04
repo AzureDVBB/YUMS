@@ -1,0 +1,7 @@
+-- Mon Jul 13 19:33:30 2020
+Load balancing by passing sockets through multiprocessing Queues to other processes
+where they then will use asyncio.open_connection() to get the Read/Write Streams.
+
+Alternatively, just spin up multiple servers that all connect to a central database
+so people can pick the less laggy server, while all chat will still travel between shards
+thanks to the common database.
