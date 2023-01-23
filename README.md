@@ -1,3 +1,10 @@
+# Archival Notice
+
+I haven't worked on this project in a while and probably a while yet.
+It was a nice experiment and learning experience, however I spent a lot of time thinking about type safety and how things would break in production, instead of just building something to make it sortof work.
+
+Later on I may still pick it up (eventually) but it will be written in RUST instead of Python, as it offers much more strict typing.
+
 # YUMS
 Yet Another MUD Server (now with a typo!)
 
